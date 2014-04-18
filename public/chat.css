@@ -1,0 +1,76 @@
+
+.button {
+	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	box-shadow:inset 0px 1px 0px 0px #ffffff;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #c9c3c9), color-stop(1, #f0ebf0) );
+	background:-moz-linear-gradient( center top, #c9c3c9 5%, #f0ebf0 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#c9c3c9', endColorstr='#f0ebf0');
+	background-color:#c9c3c9;
+	-webkit-border-top-left-radius:15px;
+	-moz-border-radius-topleft:15px;
+	border-top-left-radius:15px;
+	-webkit-border-top-right-radius:15px;
+	-moz-border-radius-topright:15px;
+	border-top-right-radius:15px;
+	-webkit-border-bottom-right-radius:15px;
+	-moz-border-radius-bottomright:15px;
+	border-bottom-right-radius:15px;
+	-webkit-border-bottom-left-radius:15px;
+	-moz-border-radius-bottomleft:15px;
+	border-bottom-left-radius:15px;
+	text-indent:0;
+	border:1px solid #dcdcdc;
+	display:inline-block;
+	color:#f50cf5;
+	font-family:arial;
+	font-size:16px;
+	font-weight:bold;
+	font-style:normal;
+	height:23px;
+	line-height:23px;
+	width:54px;
+	text-decoration:none;
+	text-align:center;
+	text-shadow:1px 1px 0px #ffffff;
+}
+.button:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #f0ebf0), color-stop(1, #c9c3c9) );
+	background:-moz-linear-gradient( center top, #f0ebf0 5%, #c9c3c9 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#f0ebf0', endColorstr='#c9c3c9');
+	background-color:#f0ebf0;
+}.button:active {
+	position:relative;
+	top:1px;
+}
+/*
+.chatroom {
+	background-repeat: repeat;
+	margin: 0px;
+	padding: 0px;
+	float: left;
+	height: auto;
+	width: auto;
+	border-top-width: 0px;
+	border-right-width: 0px;
+	border-bottom-width: 0px;
+	border-left-width: 0px;
+}
+*/
+#conversation { width:90%; padding:5px; background:#ddd; border-radius:5px; overflow-y: scroll; overflow-x:hidden;
+                   border:1px solid #CCC; margin-top:10px; height: 450px; 
+	white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+     white-space: -pre-wrap;      /* Opera 4-6 */
+     white-space: -o-pre-wrap;    /* Opera 7 */
+     white-space: pre-wrap;       /* css-3 */
+     word-wrap: break-word;       /* Internet Explorer 5.5+ */
+     word-break: break-all;
+     white-space: normal;
+				   }
+				   
+#data { border-radius:2px; 
+		border:1px solid #ccc;  
+		margin-top:10px; 
+		padding:5px; 
+		width:70%;  
+}

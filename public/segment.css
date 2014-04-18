@@ -1,0 +1,63 @@
+body {
+	font: 100%/1.4 Verdana, Arial, Helvetica, sans-serif;
+	background-color: #4E5869;
+	margin: 0;
+	padding: 0;
+	color: #000;
+}
+
+/* ~~ this container surrounds all other divs giving them their percentage-based width ~~ */
+
+.container {
+	max-width: 1260px;/* a max-width may be desirable to keep this layout from getting too wide on a large monitor. This keeps line length more readable. IE6 does not respect this declaration. */
+	min-width: 780px;/* a min-width may be desirable to keep this layout from getting too narrow. This keeps line length more readable in the side columns. IE6 does not respect this declaration. */
+	background-color: #000; /* the auto value on the sides, coupled with the width, centers the layout. It is not needed if you set the .container's width to 100%. */
+	margin-top: 0;
+	margin-right: 10px;
+	margin-bottom: 0;
+	margin-left: 10px;
+	width: 100%;
+}
+
+/* ~~ the header is not given a width. It will extend the full width of your layout. It contains an image placeholder that should be replaced with your own linked logo ~~ */
+.header {
+	background-color: #999;
+	z-index: 9;
+}
+
+.sidebar1 {
+	float: left;
+	background-color: #93A5C4;
+	height: 550px;
+}
+.content {
+	float: left;
+	height: 550px;
+	background:linear-gradient(top,#009,#06C);
+	background:-moz-linear-gradient(top,#009,#06C);
+	background:-webkit-linear-gradient(top,#009,#06C);
+}
+.sidebar2 {
+	float: left;
+	background-color: #9933FF;
+	height: 550px;
+}
+
+
+
+.nav {
+	list-style: none;
+	padding-left: 15px;
+}
+.nav > li{
+	margin-top: 5px;
+}
+
+
+/* ~~The footer ~~ */
+.footer {
+	padding-left: 10px;
+	background-color: #6F7D94;
+	position: relative;/* this gives IE6 hasLayout to properly clear */
+	clear: both; /* this clear property forces the .container to understand where the columns end and contain them */
+}

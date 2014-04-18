@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CS FYP</title>
+
+<link href="/mainmenu_sub.css" rel="stylesheet" type="text/css">
+<link href="/segment.css" rel="stylesheet" type="text/css">
+
+<style>
+.sidebar1 {
+	float: left;
+	width: 10%;
+	background-color: #93A5C4;
+	height: 700px;
+}
+.content {
+	width: 90%;
+	float: left;
+	height: 700px;
+	padding-top: 0px;
+	padding-right: 0;
+	padding-bottom: 0px;
+	padding-left: 0;
+	background-color: #000;
+}
+.sidebar2 {
+	float: left;
+	width: 20%;
+	background-color: #9933FF;
+	height: 700px;
+	padding-top: 0px;
+	padding-right: 0;
+	padding-bottom: 0px;
+	padding-left: 0;
+}
+</style>
+
+</head>
+
+<body>
+
+  <div class='header' style="width:100%;">
+		<div id='mainmenu'>
+			<ul>
+				<li><a href='/home'><span>Home</span></a></li>
+				<li class='active'><a href='/help'><span>Help</span></a></li>
+				<li><a href='/about'><span>About</span></a></li>
+			</ul>
+		</div>
+	</div>
+  
+  
+  <div class="sidebar1">
+    <ul class="nav">
+      <li><a href="#">Get Started</a></li>
+      <li><a href="#">Whiteboard</a></li>
+      <ul style="list-style:none; padding-left: 20px">
+      	<li><a href="#">Canvas</a></li>
+        <li><a href="#">Controll bar</a></li>
+      </ul>
+      <li><a href="#">Chatroom</a></li>
+    </ul>
+
+    <!-- end .sidebar1 --></div>
+    
+    
+  <div class="content">
+    <h2>&nbsp;</h2>
+	<h3>&nbsp;</h3>
+  <!-- end .content --></div>
+
+  <div class="footer">
+    <p>This whiteboard requires at least
+		<a href="http://www.mozilla.com/firefox/channel/">Firefox 7 beta</a> or
+		<a href="http://www.google.com/landing/chrome/beta/">Chrome 14 beta</a>.</p>
+	<script>
+		document.body.addEventListener('touchmove', function(event) {
+		event.preventDefault();
+		}, false); 
+	</script>
+    <!-- end .footer --></div>
+  <!-- end .container -->
+</body>
+</html>

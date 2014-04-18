@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  
+  <title>WebSocket Whiteboard Example</title> 
+  
+  
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+  <script src="/activeclass.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/client.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/jquery.hammer.js" type="text/javascript" charset="utf-8"></script>
+  <script src="/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
+
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+  <link href="/menu.css" rel="stylesheet" type="text/css">
+  <link href="/layout.css" rel="stylesheet" type="text/css">
+  <link href="/popup.css" rel="stylesheet" type="text/css">
+  
+
+<!--   <style>
+  #draggable { width: 150px; height: 150px; padding: 0.5em; }
+  </style>
+  <script>
+  $(function() {
+    $( "#draggable" ).draggable();
+  });
+  </script> -->
+  
+</head>
+
+<body>
+
+  <h1>Interactive Whiteboard</h1>
+  
+	<p>This whiteboard requires at least
+		<a href="http://www.mozilla.com/firefox/channel/">Firefox 7 beta</a> or
+		<a href="http://www.google.com/landing/chrome/beta/">Chrome 14 beta</a>.</p>
+		
+	<script>
+		document.body.addEventListener('touchmove', function(event) {
+		event.preventDefault();
+		}, false); 
+	</script>
+	
+	<div id='cssmenu'>
+		<ul>
+		
+<!--COLOR-->
+			<li id='color' class='color'><a>
+				<button style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
+					<img id='colorimg' src="/image/black.png" alt="Color" title="Color" height="30" width="35"></button> <!--color-->
+				<ul>
+					<li class='active'><a>
+						<button onclick="setColor(0,0,0)"
+						style="color: #FFF; background-color: rgb(0,0,0)">
+							<img src="/image/black.png" alt="Black" title="Black" height="15" width="20"></button></a> <!--black-->
+					</li>
+					<li class=''><a>
+						<button onclick="setColor(128,0,128)"
+						style="color: #FFF; background-color: rgb(128,0,128)">
+							<img src="/image/purple.png" alt="Purple" title="Purple" height="15" width="20"></button></a> <!--purple-->
+					</li>
+					<li class=''><a>
+						<button onclick="setColor(200,0,0)"
+						style="color: #FFF; background-color: rgb(200,0,0)">
+							<img src="/image/red.png" alt="Red" title="Red" height="15" width="20"></button></a> <!--red-->
+					</li>
+					<li class=''><a>
+						<button onclick="setColor(255,255,0)"
+						style="color: #FFF; background-color: rgb(255,255,0)">
+							<img src="/image/yellow.png" alt="Yellow" title="Yellow" height="15" width="20"></button></a> <!--yellow-->
+					</li>
+					<li class=''><a>
+						<button onclick="setColor(0,128,0)"
+						style="color: #FFF; background-color: rgb(0,128,0)">
+							<img src="/image/green.png" alt="Green" title="Green" height="15" width="20"></button></a> <!--green-->
+					</li>
+					<li class=''><a>
+						<button onclick="setColor(0,0,255)"
+						style="color: #FFF; background-color: rgb(0,0,255)">
+							<img src="/image/blue.png" alt="Blue" title="Blue" height="15" width="20"></button></a> <!--blue-->
+					</li>
+					<li class=''><a>
+						<button onclick="setColor(0,255,255)"
+						style="color: #FFF; background-color: rgb(0,255,255)">
+							<img src="/image/cyan.png" alt="Cyan" title="Cyan" height="15" width="20"></button></a> <!--cyan-->
+					</li>					
+					<li class=''><a>
+						<button onclick="setColor(255,255,255)"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/white.png" alt="White" title="White" height="15" width="20"></button></a> <!--white-->
+					</li>
+				</ul></a>
+			</li>
+			
+<!--SIZE-->			
+			<li id='size' class='size'><a>
+				<button style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
+					<img id='sizeimg' src="/image/1.png" alt="Size" title="Size" height="30" width="35"></button> <!--size-->
+				<ul>
+					<li class='active'><a>
+						<button onclick="setWidth(1)"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/1.png" alt="1" title="1" height="20" width="25"></button></a> <!--1-->
+					</li>
+					<li class=''><a>
+						<button onclick="setWidth(3)"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/2.png" alt="2" title="2" height="20" width="25"></button></a> <!--2-->
+					</li>
+					<li class=''><a>
+						<button onclick="setWidth(5)"
+						style="color: #000000; background-color: rgb(255,255,255)">	
+						<img src="/image/3.png" alt="3" title="3" height="20" width="25"></button></a> <!--3-->
+					</li>
+					<li class=''><a>
+						<button onclick="setWidth(7)"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/4.png" alt="4" title="4" height="20" width="25"></button></a> <!--4-->
+					</li>
+					<li class=''><a>
+						<button onclick="setWidth(9)"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/5.png" alt="5" title="5" height="20" width="25"></button></a> <!--5-->
+					</li>
+					<li class=''><a>
+						<button onclick="setWidth(11)"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/6.png" alt="6" title="6" height="20" width="25"></button></a> <!--6-->
+					</li>
+					<li class=''><a>
+						<button onclick="setWidth(13)"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/7.png" alt="7" title="7" height="20" width="25"></button></a> <!--7-->
+					</li>
+				</ul></a>
+			</li>
+
+<!--TOOLS-->
+			<li id='tools' class='active'><a>
+				<button style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
+					<img id='toolsimg' src="/image/pencil.png" alt="Tools" title="Tools"  height="30" width="35"></button> <!--tools-->
+				<ul>
+					<li class='active'><a>
+						<button onclick="setFunc('draw')"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/pencil.png" alt="Pencil" title="Pencil" height="20" width="25"></button></a> <!--pencil-->
+					</li>
+					<li class=''><a>
+						<button onclick="setFunc('drawRect')"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/rectangle.png" alt="Rectangle" title="Rectangle" height="20" width="25"></button></a> <!--rectangle-->
+					</li>
+					<li class=''><a>
+						<button onclick="setFunc('drawSquare')"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/square.png" alt="Square" title="Square" height="20" width="25"></button></a> <!--square-->
+					</li>
+					<li class=''><a>
+						<button onclick="setFunc('drawOval')"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/oval.png" alt="Oval" title="Oval" height="20" width="25"></button></a> <!--oval-->
+					</li>
+					<li class=''><a>
+						<button onclick="setFunc('drawCircle')"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/circle.png" alt="Circle" title="Cirlce" height="20" width="25"></button></a> <!--circle-->
+					</li>
+					<li class=''><a>
+						<button onclick="setFunc('drawLine')"
+						style="color: #000000; background-color: rgb(255,255,255)">
+							<img src="/image/line.png" alt="Line" title="Line" height="20" width="25"></button></a> <!--line-->
+					</li>
+				</ul></a>
+			</li>
+			
+<!--MENU-->				
+			<li class=''><a>
+				<button onclick="setFunc('erase')"
+				style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
+					<img src="/image/eraser.png" alt="Point Eraser" title=" Point Eraser" height="30" width="35"></button></a> <!--point eraser-->
+			</li>
+			
+			<li class=''><a>
+				<button onclick="setFunc('partErase')"
+				style="color: #000000; background-color: rgb(255,255,255)">
+					<img src="/image/eraser.png" alt="Region Eraser" title=" Region Eraser" height="30" width="35"></button></a> <!--region eraser-->
+			</li>
+			<li class=''><a>
+				<button onclick="setFunc('text'); openPopup('texteditor')"
+				style="color: #000000; background-color: rgb(255,255,255)">
+					<img src="/image/text.png" alt="Text" title="Text" height="30" width="35"></button></a> <!--text-->
+			</li>
+			<li class=''><a>
+				<button onclick="setFunc('image');openPopup('imageuploader')"
+				style="color: #000000; background-color: rgb(255,255,255)">
+					<img src="/image/insert_image.png" alt="Insert Image" title="Insert Image" height="30" width="35"></button></a> <!--image-->
+			</li>	
+			<li class=''><a>
+				<button onclick="setFunc('bgColor')"
+				style="color: #000000; background-color: rgb(255,255,255)">
+					<img src="/image/background.png" alt="Background Color" title="Background Color" height="30" width="35"></button></a> <!--background-->
+			</li>
+			<li class=''><a>
+				<button onclick="setFunc()"
+				style="color: #000000; background-color: rgb(255,255,255)">
+					<img src="/image/undo.png" alt="Undo" title="Undo" height="30" width="35"></button></a> <!--undo-->
+			</li>
+			<li class=''><a>
+				<button onclick="setFunc()"
+				style="color: #000000; background-color: rgb(255,255,255)">
+					<img src="/image/redo.png" alt="Redo" title="Redo" height="30" width="35"></button></a> <!--redo-->
+			</li>					
+			<li class=''><a>
+				<button onclick="erase()"
+				style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
+					<img src="/image/clear.png" alt="Clear" title="Clear" height="30" width="35"></button></a> <!--clear-->
+			</li>
+			<li class=''><a>
+				<button onclick="download()"
+				style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
+					<img src="/image/download.png" alt="Save" title="Save" height="30" width="35"> <!--save-->
+				</button></a>
+			</li>
+			<li>
+				<input type="radio" name="style" value="1" checked onClick="setStyle(1);"> Stroke
+				<br>
+				<input type="radio" name="style" value="2" onClick="setStyle(2);"> Fill
+			</li>
+		</ul>
+	</div>
+	
+		
+	<div id="container">
+<!--   <canvas id="whiteboardCanvas" width="800" height="450"></canvas> -->	
+		<canvas id="whiteboardCanvas" width="800" height="450" 	
+		style="z-index: 0;"></canvas>
+			
+		<canvas id="bottomCanvas" width="800" height="450" 
+		style="position: absolute; left: 0; top: 0; z-index: -1; background-color:white; "></canvas> 
+		<!-- background-color:red; -->
+			
+	</div>
+	
+
+<!-- POPUP TEXT EDITOR -->
+	<div id="texteditor" class="popup">
+		<div class="cancel" onclick="closePopup('texteditor')">
+			<img src="/image/closewin.png" alt="Close" title="close" height="15" width="15">
+		</div>
+		<b style="font-size:12pt; color:#000000"> Text Editor </b>
+		<ul>
+			<li>
+				Text: <input id="textBox" placeholder="Insert text here" />
+			</li>
+			<li>
+				Font: <select id="textFont">
+				<option value="serif">serif</option>
+				<option value="sans-serif">sans-serif</option>
+				<option value="cursive">cursive</option>
+				<option value="fantasy">fantasy</option>
+				<option value="monospace">monospace</option>
+				</select>
+			</li>	
+			<li>
+				Weight:
+				<select id="fontWeight">
+				<option value="normal">normal</option>
+				<option value="bold">bold</option>
+				<option value="bolder">bolder</option>
+				<option value="lighter">lighter</option>
+				</select>
+			</li>
+			<li>
+				Style:
+				<select id="fontStyle">
+				<option value="normal">normal</option>
+				<option value="italic">italic</option>
+				<option value="oblique">oblique</option>
+				</select>
+			</li>
+			<li>
+				Text Size: 
+				<input class="slider" type="range" id="textSize"
+				min="0"
+				max="200"
+				step="1"
+				value="30">
+			</li>
+		</ul>
+	</div>
+	
+
+<!-- POPUP Image Uploader-->
+	<div id="imageuploader" class="popup">
+		<div class="cancel" onClick="closePopup('imageuploader')">
+			<img src="/image/closewin.png" alt="Close" title="Close" height="15" width="15">
+		</div>
+		<b style="font-size:12pt; color:#000000"> Image Uploader </b>
+			<ul>
+				<li>
+					<input type="radio" name="imagesource" value="1" onClick="setImage(1);">
+					Upload a local image:
+					<input id="inputFileToLoad" type="file" onchange="loadImageFileAsURL();" />
+				</li>
+				<li>
+					<input type="radio" name="imagesource" value="2" onClick="setImage(2);"> Image URL: 
+					<input id="inputURLToLoad" placeholder="" onKeyUp="setURL(this.value);"/>
+				</li>
+			</ul>
+	</div>
+
+<script>
+
+	//$("#textSize").get(0).allowDefault = true;
+	document.getElementById("container").addEventListener('touchmove', function(event) {
+		  event.preventDefault();
+		}, false); 
+		
+    var client = new Whiteboard('whiteboardCanvas');
+	var localImage = null;
+	var urlImage = null;
+	var el = document.getElementById('imageTemp');
+	el.style.cursor = 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sMEQ4oKYwJgHsAAAMoSURBVFjD7ZZRaFtVGMd/5+a0ubkmS7tlXbuYblpa1zGyqV1pgy9OkKFjyvDFF/smccoQxrQMQQoTdPqisBFBQcUhIvomCEWGD40owrayTtdsa1NY0jRL0iWkub25uceXFoXV2qzL9tI/fHC53Pv9f9855/s4sKENPWCJlV4qpdadOBrR3QJGNEHuzJj5IYAQd9ppjagqGtG9An7ZpIvjQvDyat9qDTDfAvy+79HAPr9Hq9oO39w3gGhEDwEX9u/p7n7qyd3uVMkFcO6+AEQjegBEPLy7J3jwiQ45dvUWtm2Nx+JmquEA0YhuAOcf6epuPxI2tPHkbf6anisDZ//vX+0emEvgx0DHju5De7zycmKGKzmJWco7wPcNBwC+9Afa+58Nb3WXM5NMmtuYz6ZNcD6Kxc1yQwGiEf0D76bNLwz2hozt9nUuzLooOh7y2VnHUXy8lhzaOszfcHu8r+/q6Xpo0J/kt6ky07UgqnhzUeCcjcXN2w2bhKdOHnsLVX2/GUsccI2RzaT5Nb+V7QE/lycmsrZDVyxulu4wW2ES1g0wMjKiGV795q7Hetttu6quJf4U1qXv2Oz3MXllfKGyaB2Kxc3zK1a7AoCsd+kNo/k5XXd7Djz9DKVSSSgHrqmXyF/61qrZ1tf/ZX7PzoCQrpP9fQP+pqYmpqamWFio0NYeVFrPQceq8Wa9+eoCOH36VC9K7Q2H95JOp8lkMrikpnK5WwXN7Xs8Fjcr9QLUtwWy6Xj//oFmTdNIJBIU5vNOLpctKKc6+Pbwu4m76aY1AUgpfcFg8JOdO3e8cvGPi1pyeoaKueAUS/N55VQHTpx453rDLiRCiC1tbW0/DQ0N9fn9fkZHR0kmkxx+8flCx7aH+4aHh2+s2azeLhBCSOAHKWVfKBSitbUVj8eDlJKvvjj3WaFQuLHeOb7qCgghzgBHfT4fnZ2dtLS0UC6XSaVSzM3NHQV+BhzAXooqYC3FolLKvutBJIR4Ffj0n/43MAwDy7IoFotp4DXAXCUqQFkpVasbADgGvLfMs1TlLDADTACfA4tAbanq5cqXn6v/Nl4NYEMbeuD6G2BFQviVGcVVAAAAAElFTkSuQmCC") 5 25 ,crosshair';
+
+    client.connect();
+	
+	client.setFunc('draw');
+	
+    function erase() {
+      client.sendClear();
+    }
+    
+    function setColor(r,g,b) {
+      client.setColor(r,g,b);
+    }
+	
+	function setWidth(width) {
+      client.setWidth(width);
+    }
+	
+	function setFunc(command) {
+		if(command=='draw')
+			el.style.cursor = 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9sMEQ4oKYwJgHsAAAMoSURBVFjD7ZZRaFtVGMd/5+a0ubkmS7tlXbuYblpa1zGyqV1pgy9OkKFjyvDFF/smccoQxrQMQQoTdPqisBFBQcUhIvomCEWGD40owrayTtdsa1NY0jRL0iWkub25uceXFoXV2qzL9tI/fHC53Pv9f9855/s4sKENPWCJlV4qpdadOBrR3QJGNEHuzJj5IYAQd9ppjagqGtG9An7ZpIvjQvDyat9qDTDfAvy+79HAPr9Hq9oO39w3gGhEDwEX9u/p7n7qyd3uVMkFcO6+AEQjegBEPLy7J3jwiQ45dvUWtm2Nx+JmquEA0YhuAOcf6epuPxI2tPHkbf6anisDZ//vX+0emEvgx0DHju5De7zycmKGKzmJWco7wPcNBwC+9Afa+58Nb3WXM5NMmtuYz6ZNcD6Kxc1yQwGiEf0D76bNLwz2hozt9nUuzLooOh7y2VnHUXy8lhzaOszfcHu8r+/q6Xpo0J/kt6ky07UgqnhzUeCcjcXN2w2bhKdOHnsLVX2/GUsccI2RzaT5Nb+V7QE/lycmsrZDVyxulu4wW2ES1g0wMjKiGV795q7Hetttu6quJf4U1qXv2Oz3MXllfKGyaB2Kxc3zK1a7AoCsd+kNo/k5XXd7Djz9DKVSSSgHrqmXyF/61qrZ1tf/ZX7PzoCQrpP9fQP+pqYmpqamWFio0NYeVFrPQceq8Wa9+eoCOH36VC9K7Q2H95JOp8lkMrikpnK5WwXN7Xs8Fjcr9QLUtwWy6Xj//oFmTdNIJBIU5vNOLpctKKc6+Pbwu4m76aY1AUgpfcFg8JOdO3e8cvGPi1pyeoaKueAUS/N55VQHTpx453rDLiRCiC1tbW0/DQ0N9fn9fkZHR0kmkxx+8flCx7aH+4aHh2+s2azeLhBCSOAHKWVfKBSitbUVj8eDlJKvvjj3WaFQuLHeOb7qCgghzgBHfT4fnZ2dtLS0UC6XSaVSzM3NHQV+BhzAXooqYC3FolLKvutBJIR4Ffj0n/43MAwDy7IoFotp4DXAXCUqQFkpVasbADgGvLfMs1TlLDADTACfA4tAbanq5cqXn6v/Nl4NYEMbeuD6G2BFQviVGcVVAAAAAElFTkSuQmCC") 5 25 ,crosshair';
+		else if(command=='erase'||command=='partErase')
+			el.style.cursor = 'url("data:image/png;base64,R0lGODlhIAAgAOf/ABZDfcYnDNQrDM0uEsgyEM8wFNExC9kwGss1Esw2FNM0F9Y2EM44Fdc4GtE7FwBpuhtlpNs7HQBtvytln90+F89CIOY9HOFBGtRGKtFKI+dGFeBIGwB8v+RMHudOIACCywCDzfdNKeRTKPlOI+1THcBbU/lPKgCJzN5WOhGFydlZORGHxfBVJwCM0PJXIQCOywCPzACQzfhWM/pXJRuKyPtYNQeS0OFgQPhcJv5aMNdkQ/NfJA2T0dZlSQCX0/peKP1bPSSOzPxfKQ+WzflfPfZiLxWV0/pgPgCc0ROXzvxhOPlkKQCd0/lkMfplKl+Gs/xmI/5jQACg1vtmM/1nJN5sT/pmOQGi2ACj0k2QrPxoOy2YyuNvTPpsLQCl2uNwU/5qQ1aQuvxtLvttNc13WvttPP1uL/ptQ/xuNvxuPf5vMPtuQwqn1v1vPgCr2f5wRfxzMP1xTP10MQCu3Px0OOV4Xv51M956Yvt1Rv9zVNx9YwGx5iqn0f93OwCz2/x6M/13Tv94Qvt6QQC13f17NPx7O/l6Tv54Vf58NQC241OgzgC3396BbP99Nv99Pfx8UPt8Vkuk0fZ+VWSeyPuANvx9V/9+RfuAPf9+S0SqwvyBPv5+WOqDZf6CON+Hb/+DQP6DR/yGOWSk1OeIc/6IOvyFYf2IQV2p2P2ISfyIT+mKdP2JUOONesiVfF2s1Di31PuJYvyMQ/+IY/2NRPyNSv6ORfyOUfyMarWdlf6PTOSTfv+QTf6QU/+ObP+RVPyTTf+RW/yRbf2UTvWTcv6VT/6VVvyTdP+WUPuZUPmWdf6XXf2aUfyaWP6bUv6cWvWbgv+dVP+dW/6dYf+eYv2gVfqef/iehf2hW/+hVvyhYv+jXf6jZLy0mv+lbP2nX/ynZrm1p/6oYP2oZ/yobf6pbvCqkP+qb/2qdfytafyucP+vZP+tffyvd/+wbPOvmv6wcv2weP+xc/yzbP20bf6yf/+ze/62dfq1oOy5q/24g/+6f/C7p/S/q/TAsv3Fq////yH5BAEKAP8ALAAAAAAgACAAAAj+AP8JHPjPFcGDCBMiFJViCJIkkRRKTPjggw0kWNi4YePj1MSJEj60gJFEihs/gxLt4YPL38eEQU7QIHllzqBFr8DRW3fu3MuDPHjQeFHSSyZu+vLRY8cOXrx0PwVusWEEBowsrcbFqwePnbl07+LZswf1ZRhFHFaQwQRsWrdxcMeRQ9dO3rx57ba9nDAJwo4xmHgpkyYt27Zv4tChU6dYXDRbHwE84UJiSaBVvooxc3bNm7dw4bxpu+asWCpBH0tw0uACDahdxI4hg0YNGzVqyI7t2oXKUpuPB1SJ0FDEES3YyJIjI/aLFipQl/qMsfJRQJ0vFEjQMTWrlvdasUzVfdJUiM6UNbcOfTSAYlSEC0sahZofqhMlQnbMNDEUrJe1nw2MosICLNiBCCKE/GGHHV00UUkvvdzzDBE/GVDFHQVc4MSCanThhBWVyNILP8lUEkVUA2DASgUKuEAFFD9YAUkpxvQDyyNxABHVPwEMwEgPBHSAwxF5VFLNPpUAskYNOw40gA6eJOABGIC4Uw4eb2ghQ5MEMZCBLjecsc8waZShRAhcHsQAA3rgI8kUU+SAZpoHJZDABj/8MAOdEg0wwgh8TmRBoIQWauihiCaq6KKMvhQQADs=") 0 5 ,crosshair';
+		else 
+			el.style.cursor = 'crosshair';
+        client.setFunc(command);
+    }
+	
+	function setImage(source) {
+		if(source==1)
+			client.setImage(localImage);
+		else if(source==2)
+			client.setImage(urlImage);
+	}
+	
+	function setStyle(source) {
+		if(source==1)
+			client.setStyle(1);
+		else if(source==2)
+			client.setStyle(2);
+	}
+	
+	function download() {
+		var cs = new CanvasSaver('http://taffatech.com/saveme.php');
+//		var cs = new CanvasSaver('http://localhost:3389/saveme.php');
+		var container = document.getElementById('whiteboardCanvas').parentNode;
+		var temp = document.createElement('canvas');
+		temp.id     = 'temp';
+		temp.width  = 800;
+		temp.height = 450;
+		container.appendChild(temp);
+		var context = temp.getContext('2d');
+		context.drawImage(document.getElementById('bottomCanvas'), 0, 0);
+		context.drawImage(document.getElementById('whiteboardCanvas'), 0, 0);
+		cs.savePNG(temp, 'image');
+		//cs.savePNG(document.getElementById('whiteboardCanvas'), 'image');
+		//temp.remove();
+		container.removeChild(temp);
+	}
+
+	function CanvasSaver(url) {
+	   this.url = url;
+	   this.savePNG = function(cnvs, fname) {
+	   if(!cnvs || !url) return;
+		 fname = fname || 'picture';
+
+		 var data = cnvs.toDataURL("image/png");
+		 data = data.substr(data.indexOf(',') + 1).toString();
+		 var dataInput = document.createElement("input") ;
+		 dataInput.setAttribute("name", 'imgdata') ;
+		 dataInput.setAttribute("value", data);
+
+		 var nameInput = document.createElement("input") ;
+		 nameInput.setAttribute("name", 'name') ;
+		 nameInput.setAttribute("value", fname + '.png');
+
+		 var myForm = document.createElement("form");
+		 myForm.method = 'post';
+		 myForm.action = url;
+		 myForm.appendChild(dataInput);
+		 myForm.appendChild(nameInput);
+
+		 document.body.appendChild(myForm) ;
+		 myForm.submit() ;
+		 document.body.removeChild(myForm) ;
+	   };
+	}
+
+	function getRadioValue() {
+		var inputs = document.getElementsByName("imagesource");
+		for (var i = 0; i < inputs.length; i++) {
+		  if (inputs[i].checked) {
+			return inputs[i].value;
+		  }
+		}
+	}
+	
+	function loadImageFileAsURL()
+	{
+		var filesSelected = document.getElementById("inputFileToLoad").files;
+		if (filesSelected.length > 0)
+		{
+			var fileToLoad = filesSelected[0];
+
+			var fileReader = new FileReader();
+
+			fileReader.onload = function(fileLoadedEvent) 
+			{
+				localImage = fileLoadedEvent.target.result;
+				if(getRadioValue()==1)
+					client.setImage(localImage);
+			};
+			fileReader.readAsDataURL(fileToLoad);
+		}
+	}
+	//onKeyDown="callname1(this.value);" onKeyPress="callname1(this.value);" onKeyUp="callname1(this.value);"></textarea>
+
+	
+    function setURL(str) {
+        urlImage = str;
+
+		var img = new Image();
+		var imagecanvas = document.createElement("canvas");
+		var ctx = imagecanvas.getContext("2d");
+		//src = "http://example.com/image"; // insert image url here
+
+		img.crossorigin = "anonymous";
+
+		img.onload = function() {
+			imagecanvas.width = img.width;
+			imagecanvas.height = img.height;
+//			ctx.drawImage( img, 0, 0 );
+//			urlImage = imagecanvas.toDataURL();
+			console.log(img);
+			if(getRadioValue()==2)
+				client.setImage(urlImage);
+		}
+
+		img.src = str;
+		// make sure the load event fires for cached images too		
+    }
+	
+/*	var xhr = new XMLHttpRequest();
+	xhr.onreadystatechange = process;
+	xhr.open("GET", "http://upload.wikimedia.org/wikipedia/commons/f/ff/Bonsai_IMG_6404.jpg", true);
+	xhr.send();
+
+	function process()
+	{
+		if (xhr.readyState == 4) {
+			var resp = JSON.parse(xhr.responseText);
+
+			// resp now has the text and you can process it.
+			alert(resp);
+		}
+	}*/
+	/*var text="";
+$.get(url, function(data){text=data;//
+
+});*/
+	
+</script>
+  
+<script>
+	function openPopup(popid) {
+		document.getElementById(popid).style.display = 'block';
+	}
+
+	function closePopup(popid) {
+		document.getElementById(popid).style.display = 'none';
+	}
+</script>
+
+</body>
+</html>

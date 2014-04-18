@@ -1,0 +1,67 @@
+<!-- views/profile.ejs -->
+<!doctype html>
+<html>
+<head>
+	<title>Node Authentication</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<style>
+		body 		{ padding-top:80px; word-wrap:break-word; }
+	</style>
+</head>
+<body>
+<div class="container">
+
+	<div class="page-header text-center">
+		<h1><span class="fa fa-anchor"></span><%= username%></h1>
+		<a href="/home" class="btn btn-default btn-sm">Home</a>
+		<a href="/profile" class="btn btn-default btn-sm">Profile</a>
+		<a href="/logout" class="btn btn-default btn-sm">Logout</a>
+	</div>
+
+
+	<div class="row">	
+		<!-- LOCAL INFORMATION -->
+				<h3><span class="fa fa-user"></span>Created Room:</h3>
+
+	</div>
+
+	<table cellspacing="0" cellpadding="0" width="100%" style='table-layout : fixed'>
+		<tr>
+			<td width="8%"></td>
+			<td width="10%"><strong>Room ID</strong></td>	
+			<td width="10%"><strong>Host</strong></td>	
+			<td width="30%"><strong>Create Date</strong></td>	
+			<td width="42%"><strong>User using the room</strong></td>
+		</tr>	
+
+	
+	<%if (numberOfRoom != 0) { %>
+		<% if(typeof userRoom != "undefined"){%>
+		<%for (var i=0; i<userRoom.length; i++) {%>
+			<tr>
+			<td>
+				<a href="/whiteboard?id=<%=userRoom[i]%>" class="btn btn-default btn-sm">Enter</a>
+			</td>
+			<td>
+				<%=userRoom[i]%>
+			</td>
+			<td>
+				 <%=global.host[userRoom[i]]%>
+			</td>	
+			<td>
+				 <%=global.date[userRoom[i]]%>
+			</td>	
+			<td>
+				 <%for (var j=0;j<global.roomInfo[userRoom[i]].length;j++){%>
+					<%=global.roomInfo[userRoom[i]][j]%>
+				 <%}%>
+			</td>
+			</tr>	
+		<% } %>
+		
+	<% }} %>
+	</table>
+</div>
+</body>
+</html>

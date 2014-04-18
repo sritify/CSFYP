@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>CS FYP</title>
+
+<link href="/mainmenu_sub.css" rel="stylesheet" type="text/css">
+<link href="segment.css" rel="stylesheet" type="text/css">
+
+<style>
+.sidebar1 {
+	width: 15%;
+}
+.content {
+	width: 100%;
+	color: #FFF
+}
+.content > div { 
+	margin-top: 70px;
+	margin-left: 70px;
+}
+.sidebar2 {
+	width: 20%;
+	padding-top: 0px;
+	padding-right: 0;
+	padding-bottom: 0px;
+	padding-left: 0;
+}
+table tr td {
+	padding: 5px;	
+	padding-left: 0px
+}
+</style>
+
+</head>
+
+<body>
+
+  <div class='header' style="width:100%;">
+		<div id='mainmenu'>
+			<ul>
+				<li><a href='/home'><span>Home</span></a></li>
+				<li><a href='/help'><span>Help</span></a></li>
+				<li class='active'><a href='/about'><span>About</span></a></li>
+			</ul>
+		</div>
+	</div>
+
+
+  <div class="content">
+  	<div>
+  		<h2> The Chinese University of Hong Kong </h4>
+  		<h3> Department of Computer Science </h3>
+  		<h4> Final Year Project 13-14 </h4>
+  	</div>
+  
+  	<div id='title' style="margin-top: 50px; margin-bottom: 50px;">
+  		<h1 style="font-size:48px">Interactive Whiteboard</h1>
+  	</div>
+  
+  	<div>
+  		<p>Presented by</p>
+  
+  		<table>
+  			<tr>
+   				<td>HUNG Ka Wai Troy</td>
+  	      		<td></td>
+  			</tr>
+    		<tr>
+    			<td>SO Pak Hang Angus</td>
+    	    	<td>1155016027</td>
+    		</tr>
+  		</table>
+ 	 </div>
+  </div>
+
+
+  <div class="footer">
+    <p>This whiteboard requires at least
+		<a href="http://www.mozilla.com/firefox/channel/">Firefox 7 beta</a> or
+		<a href="http://www.google.com/landing/chrome/beta/">Chrome 14 beta</a>.</p>
+	<script>
+		document.body.addEventListener('touchmove', function(event) {
+		event.preventDefault();
+		}, false); 
+	</script>
+    <!-- end .footer --></div>
+</body>
+</html>
