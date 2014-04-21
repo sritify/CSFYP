@@ -4,6 +4,7 @@ body {
 	margin: 0;
 	padding: 0;
 	color: #000;
+	overflow:hidden;
 }
 
 /* ~~ this container surrounds all other divs giving them their percentage-based width ~~ */
@@ -26,21 +27,24 @@ body {
 }
 
 .sidebar1 {
+	position:fixed;
 	float: left;
 	background-color: #93A5C4;
-	height: 550px;
+	height: 530px;
 }
 .content {
 	float: left;
-	height: 550px;
+	height: 530px;
 	background:linear-gradient(top,#009,#06C);
 	background:-moz-linear-gradient(top,#009,#06C);
 	background:-webkit-linear-gradient(top,#009,#06C);
 }
 .sidebar2 {
 	float: left;
+	position: fixed;
+	left:75%;
 	background-color: #9933FF;
-	height: 550px;
+	height: 530px;
 }
 
 

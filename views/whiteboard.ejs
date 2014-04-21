@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>FYP Interactive Whiteboard Room: <%= room %></title>
 
-  
   <style>
   .content{
 	width: 75%;
@@ -13,19 +12,18 @@
   .sidebar2{
 	width: 24%;
 	padding-left: 10px;
+	margin-left: 2px;
   }
   </style>
   
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
-  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
   <script src="/activeclass.js" type="text/javascript" charset="utf-8"></script>
   <!-- <script src="/jquery.hammer.js" type="text/javascript" charset="utf-8"></script> -->
   <script src="fabric.js" type="text/javascript" charset="utf-8"></script>
   <script src="/client.js" type="text/javascript" charset="utf-8"></script>
   <script src="/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
   
-  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
   <link href="/menu.css" rel="stylesheet" type="text/css">
   <link href="/layout.css" rel="stylesheet" type="text/css">
   <link href="/popup.css" rel="stylesheet" type="text/css">
@@ -33,7 +31,25 @@
   <link href="/segment.css" rel="stylesheet" type="text/css">
   <link href="/mainmenu_sub.css" rel="stylesheet" type="text/css">
   
+ <!-- Color Picker  
+	<link rel="stylesheet" href="colorpicker/css/colorpicker.css" type="text/css" />
+    <link rel="stylesheet" media="screen" type="text/css" href="colorpicker/css/layout.css" />
+    <title>ColorPicker - jQuery plugin</title>
+	<script type="text/javascript" src="colorpicker/js/jquery.js"></script>
+	<script type="text/javascript" src="colorpicker/js/colorpicker.js"></script>
+    <script type="text/javascript" src="colorpicker/js/eye.js"></script>
+    <script type="text/javascript" src="colorpicker/js/utils.js"></script>
+    <script type="text/javascript" src="colorpicker/js/layout.js?ver=1.0.2"></script>
+ --> 
   
+  <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+  <script>
+  $(function() {
+    $( ".draggable" ).draggable();
+  });
+  </script>
+
 </head>
 <body>
 	<div class='header' style="width:100%;">
@@ -110,49 +126,6 @@
 				</ul></a>
 			</li>
 			
-<!--SIZE-->			
-			<li id='size' class='size'><a>
-				<button style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
-					<img id='sizeimg' src="/image/1.png" alt="Size" title="Size" height="30" width="35"></button> <!--size-->
-				<ul>
-					<li class='active'><a>
-						<button onclick="setWidth(1)"
-						style="color: #000000; background-color: rgb(255,255,255)">
-							<img src="/image/1.png" alt="1" title="1" height="20" width="25"></button></a> <!--1-->
-					</li>
-					<li class=''><a>
-						<button onclick="setWidth(3)"
-						style="color: #000000; background-color: rgb(255,255,255)">
-							<img src="/image/2.png" alt="2" title="2" height="20" width="25"></button></a> <!--2-->
-					</li>
-					<li class=''><a>
-						<button onclick="setWidth(5)"
-						style="color: #000000; background-color: rgb(255,255,255)">	
-						<img src="/image/3.png" alt="3" title="3" height="20" width="25"></button></a> <!--3-->
-					</li>
-					<li class=''><a>
-						<button onclick="setWidth(7)"
-						style="color: #000000; background-color: rgb(255,255,255)">
-							<img src="/image/4.png" alt="4" title="4" height="20" width="25"></button></a> <!--4-->
-					</li>
-					<li class=''><a>
-						<button onclick="setWidth(9)"
-						style="color: #000000; background-color: rgb(255,255,255)">
-							<img src="/image/5.png" alt="5" title="5" height="20" width="25"></button></a> <!--5-->
-					</li>
-					<li class=''><a>
-						<button onclick="setWidth(11)"
-						style="color: #000000; background-color: rgb(255,255,255)">
-							<img src="/image/6.png" alt="6" title="6" height="20" width="25"></button></a> <!--6-->
-					</li>
-					<li class=''><a>
-						<button onclick="setWidth(13)"
-						style="color: #000000; background-color: rgb(255,255,255)">
-							<img src="/image/7.png" alt="7" title="7" height="20" width="25"></button></a> <!--7-->
-					</li>
-				</ul></a>
-			</li>
-
 <!--TOOLS-->
 			<li id='tools' class='active'><a>
 				<button style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
@@ -260,11 +233,12 @@
 					<img src="/image/download.png" alt="Save" title="Save" height="30" width="35"> <!--save-->
 				</button></a>
 			</li>
-			<li>
+<!--		<li>
 				<input type="radio" name="style" value="1" checked onClick="setStyle(1);"> Stroke
 				<br>
 				<input type="radio" name="style" value="2" onClick="setStyle(2);"> Fill
 			</li>
+-->
 			<li>
 				<button id="edittext" onclick="openPopup('texteditor2'); closePopup('texteditor');">
 				Edit Text</button>
@@ -294,9 +268,11 @@
 
 		</div>
 	</div>
-  
-  
-	<div id="texteditor2" class="popup">
+
+
+<!-- Pop Up Edit Text-->
+	  
+	<div id="texteditor2" class="popup draggable">
 		<div class="cancel" onclick="closePopup('texteditor2')">
 			<img src="/image/closewin.png" alt="Close" title="close" height="15" width="15">
 		</div>
@@ -343,7 +319,7 @@
 	</div>
 	
 <!-- POPUP TEXT EDITOR -->
-	<div id="texteditor" class="popup">
+	<div id="texteditor" class="popup draggable">
 		<div class="cancel" onclick="closePopup('texteditor')">
 			<img src="/image/closewin.png" alt="Close" title="close" height="15" width="15">
 		</div>
@@ -391,7 +367,7 @@
 	
 
 <!-- POPUP Image Uploader-->
-	<div id="imageuploader" class="popup">
+	<div id="imageuploader" class="popup draggable">
 		<div class="cancel" onClick="closePopup('imageuploader')">
 			<img src="/image/closewin.png" alt="Close" title="Close" height="15" width="15">
 		</div>
@@ -409,7 +385,7 @@
 			</ul>
 	</div>  
 	
-	<div id="imageuploader2" class="popup">
+	<div id="imageuploader2" class="popup draggable">
 		<div class="cancel" onClick="closePopup('imageuploader2')">
 			<img src="/image/closewin.png" alt="Close" title="Close" height="15" width="15">
 		</div>
@@ -425,7 +401,34 @@
 			</ul>
 	</div>  
 <div>  
-  
+
+<!-- Adjustment-->
+<div id="adjust" class="draggable">
+<!--	<div id="customwidget" style="float:left; margin:5px">
+		<div id="colorSelector">
+			<div style="background-color: #0000ff;">
+			</div>
+		</div>
+	</div>
+-->
+	<div id="strokefill" style="float: left; margin-top: 10px; margin-left:10px">
+		
+		<select onChange="setStyle(this.options[this.options.selectedIndex].value);">
+			<option value="1" name="style">Stroke</option>
+			<option value="2" name="style">Fill</option>
+		</select>
+	</div>
+	<div id="sizebar" style="float: left; margin-top: 5px; margin-left:10px;">
+		Thickness:
+		<input class="slider" type="range" id="textSize2"
+		min="1"
+		max="13"
+		step="1"
+		value="1"
+		oninput="setWidth(this.value);">
+	</div>
+</div>
+
   
 <!-- Chatroom -->  
 <div id="right" class="sidebar2">
@@ -435,6 +438,7 @@
 		<input id="data" autofocus="autofocus"/>
 		<input class="button" type="button" id="datasend" value="send" />
 </div>
+
 	
  <script>
 	document.getElementById("container").addEventListener('touchmove', function(event) {
@@ -482,7 +486,7 @@
 	if(updateButton)
 		updateButton.addEventListener( "click", updateEvent, false );
 	
-	var host = <%= host %>
+	var host = "<%= host %>";
 	
 	function updateEvent(e) {
 		if ( client.autoUpdate ) {
