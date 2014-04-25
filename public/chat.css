@@ -7,18 +7,9 @@
 	background:-moz-linear-gradient( center top, #c9c3c9 5%, #f0ebf0 100% );
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#c9c3c9', endColorstr='#f0ebf0');
 	background-color:#c9c3c9;
-	-webkit-border-top-left-radius:15px;
-	-moz-border-radius-topleft:15px;
-	border-top-left-radius:15px;
-	-webkit-border-top-right-radius:15px;
-	-moz-border-radius-topright:15px;
-	border-top-right-radius:15px;
-	-webkit-border-bottom-right-radius:15px;
-	-moz-border-radius-bottomright:15px;
-	border-bottom-right-radius:15px;
-	-webkit-border-bottom-left-radius:15px;
-	-moz-border-radius-bottomleft:15px;
-	border-bottom-left-radius:15px;
+	-webkit-border-radius:15px;
+	-moz-border-radius:15px;
+	border-radius:15px;
 	text-indent:0;
 	border:1px solid #dcdcdc;
 	display:inline-block;
@@ -57,15 +48,23 @@
 	border-left-width: 0px;
 }
 */
-#conversation { width:90%; padding:5px; background:#ddd; border-radius:5px; overflow-y: scroll; overflow-x:hidden;
-                   border:1px solid #CCC; margin-top:10px; height: 450px; 
+#conversation { 
+	width:90%;
+	padding:5px;
+	background:#ddd;
+	border-radius:5px;
+	overflow-y: scroll;
+	overflow-x:hidden;
+    border:1px solid #CCC;
+	margin-top:10px;
+	height: 80%; 
 	white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
-     white-space: -pre-wrap;      /* Opera 4-6 */
-     white-space: -o-pre-wrap;    /* Opera 7 */
-     white-space: pre-wrap;       /* css-3 */
-     word-wrap: break-word;       /* Internet Explorer 5.5+ */
-     word-break: break-all;
-     white-space: normal;
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    white-space: pre-wrap;       /* css-3 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+    word-break: break-all;
+    white-space: normal;
 				   }
 				   
 #data { border-radius:2px; 

@@ -24,9 +24,10 @@ function Whiteboard(canvasId) {
 	this.room="";
 	this.autoUpdate;
 	this.canvas2 = new fabric.Canvas(canvasId);
+	this.canvasScale = 1;
 	
-	fabric.Object.prototype.originX = "centre"; 
-	fabric.Object.prototype.originY = "centre";
+	fabric.Object.prototype.originX = "center"; 
+	fabric.Object.prototype.originY = "center";
 	
 	this.canvas2.backgroundColor="white";
 	
@@ -58,11 +59,17 @@ function Whiteboard(canvasId) {
 		groupRotate: this.groupRotate.bind(this),
 		scale: this.scale.bind(this),
 		groupScale: this.groupScale.bind(this),
+		rectscale: this.rectscale.bind(this),
 		linescale: this.linescale.bind(this),
 		circlescale: this.circlescale.bind(this),
 		move: this.move.bind(this),
+		groupMove: this.groupMove.bind(this),
 		selected: this.selected.bind(this),
+		groupSelected: this.groupSelected.bind(this),
 		unselected: this.unselected.bind(this),
+		groupUnselected: this.groupUnselected.bind(this),
+		groupCreate: this.groupCreate.bind(this),
+		groupCancel: this.groupCancel.bind(this),
 		create: this.create.bind(this),
 		remove: this.remove.bind(this),
 		restore: this.restore.bind(this),
@@ -107,6 +114,44 @@ function Whiteboard(canvasId) {
 	this.canvas2.calcOffset(); 
 };
 
+function reset(that, object){
+	var scaleX = object.scaleX;
+	var scaleY = object.scaleY;
+	var left = object.left;
+	var top = object.top;
+	
+	var tempScaleX = scaleX * (1 / that.canvasScale);
+	var tempScaleY = scaleY * (1 / that.canvasScale);
+	var tempLeft = left * (1 / that.canvasScale);
+	var tempTop = top * (1 / that.canvasScale);
+	
+	object.scaleX = tempScaleX;
+	object.scaleY = tempScaleY;
+	object.left = tempLeft;
+	object.top = tempTop;
+	
+	object.setCoords();
+}
+
+function zoom(that, object){
+	var scaleX = object.scaleX;
+	var scaleY = object.scaleY;
+	var left = object.left;
+	var top = object.top;
+	
+	var tempScaleX = scaleX * that.canvasScale;
+	var tempScaleY = scaleY * that.canvasScale;
+	var tempLeft = left * that.canvasScale;
+	var tempTop = top * that.canvasScale;
+	
+	object.scaleX = tempScaleX;
+	object.scaleY = tempScaleY;
+	object.left = tempLeft;
+	object.top = tempTop;
+	
+	object.setCoords();
+}
+
 // Whiteboard.prototype.onObjectRemoved = function(e) {
 	// this.socket.send(JSON.stringify({
 		// msg: 'remove',
@@ -121,19 +166,31 @@ Whiteboard.prototype.onSelectionCreated = function(e) {
 	activeGroup = this.canvas2.getActiveGroup();
 	var that = this;
 	if (activeGroup) {
-		activeGroup.lockScalingX = true;
-	    activeGroup.lockScalingY = true;
 		var objectsInGroup = activeGroup.getObjects();
-		//canvas.discardActiveGroup();
+		activeGroup.id= this.auth+(this.i++);
+		var array = new Array();
 		objectsInGroup.forEach(function(object) {	
-			//console.log(object.id);
+			console.log(object.id, activeGroup.top+object.top);
+			array.push(object.id);
 			that.socket.send(JSON.stringify({
-				msg: 'selected',
+				msg: 'groupSelected',
 				data: {
-					id: object.id
+					id: object.id,
+					top: activeGroup.top+object.top,
+					left: activeGroup.left+object.left,
+					angle: (activeGroup.angle+object.angle)
 				}
 			}));
 		});	 
+		this.socket.send(JSON.stringify({
+			msg: 'groupCreate',
+			data: {
+				id: activeGroup.id,
+				array: array,
+				top: activeGroup.top,
+				left: activeGroup.left
+			}
+		}));	
 	}
 } 
 
@@ -150,7 +207,10 @@ Whiteboard.prototype.onObjectSelected = function(e) {
 		this.socket.send(JSON.stringify({
 			msg: 'selected',
 			data: {
-				id: e.target.id
+				id: e.target.id,
+				top: e.target.top,
+				left: e.target.left,
+				angle: e.target.angle
 			}
 		}));
 	if(e.target.type=='text'){
@@ -174,16 +234,19 @@ Whiteboard.prototype.onSelectionCleared = function(e) {
 	
 	var that = this;
 	if (activeGroup) {
-		var objectsInGroup = activeGroup.getObjects();
-		objectsInGroup.forEach(function(object) {		
-			that.socket.send(JSON.stringify({
-				msg: 'unselected',
-				data: {
-					id: object.id
-				}
-			}));
-		});	
-		that.canvas2.discardActiveGroup();
+		var array = new Array();
+		var objArray = this.canvas2.getObjects();
+		for (var j = 0 ; j < objArray.length; j++) {
+			array[j]=objArray[j].id;
+		}
+		this.socket.send(JSON.stringify({
+			msg: 'groupCancel',
+			data: {
+				id: activeGroup.id,
+				array: array
+			}
+		}));
+		this.canvas2.discardActiveGroup();
 	}
 	else if (activeObject) {
 		this.selectedObject = 0;
@@ -228,24 +291,37 @@ Whiteboard.prototype.onObjectRotated = function(e) {
 	
 	var that = this;
 	if (activeGroup) {
+		activeGroup.setCoords();
+		this.socket.send(JSON.stringify({
+			msg: 'rotate',
+			data: {
+				id: activeGroup.id,
+				top: activeGroup.top,
+				left: activeGroup.left,
+				angle: activeGroup.getAngle(),
+				width: activeGroup.getWidth(),
+				height: activeGroup.getHeight()
+			}
+		}));
 		var objectsInGroup = activeGroup.getObjects();
 		//canvas.discardActiveGroup();
-		objectsInGroup.forEach(function(object) {		
-			var center = activeGroup.getCenterPoint();
-			that.socket.send(JSON.stringify({
-				msg: 'groupRotate',
-				data: {
-					id: object.id,
-					top: activeGroup.top+object.top,
-					left: activeGroup.left+object.left,
-					angle: activeGroup.angle+object.angle,
-					width: object.getWidth(),
-					height: object.getHeight(),
-					centerX: center.x,
-					centerY: center.y
-				}
-			}));
-		});	
+		// objectsInGroup.forEach(function(object) {	
+			// console.log(activeGroup.angle,object.angle);
+			// var center = activeGroup.getCenterPoint();
+			// that.socket.send(JSON.stringify({
+				// msg: 'groupRotate',
+				// data: {
+					// id: object.id,
+					// top: activeGroup.top+object.top,
+					// left: activeGroup.left+object.left,
+					// angle: (activeGroup.angle+object.angle),
+					// width: object.getWidth(),
+					// height: object.getHeight(),
+					// centerX: center.x,
+					// centerY: center.y
+				// }
+			// }));
+		// });	
 	}
 	else if (activeObject) {
 		this.socket.send(JSON.stringify({
@@ -268,25 +344,45 @@ Whiteboard.prototype.onObjectScaled = function(e){
 	
 	var that = this;
 	if (activeGroup) {
-		var objectsInGroup = activeGroup.getObjects();
-		//canvas.discardActiveGroup();
-		objectsInGroup.forEach(function(object) {
-			that.socket.send(JSON.stringify({
-				msg: 'groupScale',
-				data: {
-					type: object.type,
-					id: object.id,
-					top: activeGroup.top+object.top,
-					left: activeGroup.left+object.left,
-					width: object.getWidth(),
-					height: object.getHeight(),
-					scaleX: activeGroup.scaleX,
-					scaleY: activeGroup.scaleY
-				}
-			}));
-		});	
+		this.socket.send(JSON.stringify({
+			msg: 'scale',
+			data: {
+				type: activeGroup.type,
+				id: activeGroup.id,
+				top: activeGroup.top,
+				left: activeGroup.left,
+				width: activeGroup.getWidth(),
+				height: activeGroup.getHeight(),
+				scaleX: activeGroup.scaleX,
+				scaleY: activeGroup.scaleY
+			}
+		}));
+		// var objectsInGroup = activeGroup.getObjects();
+		// //canvas.discardActiveGroup();
+		// var center = activeGroup.getCenterPoint();
+		// objectsInGroup.forEach(function(object) {
+			// // console.log(object.id,objArray.length);
+			// // console.log(object.left);
+			// // console.log(left,center.x);
+			// // console.log(left+center.x);
+			// // console.log(object.top);
+			// // console.log(top,center.y);
+			// // console.log(top+center.y);
+			// that.socket.send(JSON.stringify({
+				// msg: 'groupScale',
+				// data: {
+					// type: object.type,
+					// id: object.id,
+					// top: (center.y+top),//*activeGroup.scaleY,//activeGroup.top+object.top,
+					// left: (center.x+left),//*activeGroup.scaleX,//activeGroup.left+object.left,
+					// scaleX: activeGroup.scaleX,
+					// scaleY: activeGroup.scaleY
+				// }
+			// }));
+		// });	
 	}
-	else if (activeObject) {
+	else 
+	if (activeObject) {
 		this.socket.send(JSON.stringify({
 			msg: 'scale',
 			data: {
@@ -310,17 +406,33 @@ Whiteboard.prototype.onObjectMoving = function(e){
 	var that = this;
 	if (activeGroup) {
 		var objectsInGroup = activeGroup.getObjects();
+		var center = activeGroup.getCenterPoint();
 		//this.canvas.discardActiveGroup();
-		objectsInGroup.forEach(function(object) {
-			that.socket.send(JSON.stringify({
-				msg: 'move',
-				data: {
-					id: object.id,
-					top: activeGroup.top+object.top,
-					left: activeGroup.left+object.left
-				}
-			}));
-		});	
+		this.socket.send(JSON.stringify({
+			msg: 'move',
+			data: {
+				id: activeGroup.id,
+				top: activeGroup.top,
+				left: activeGroup.left,
+			}
+		}));
+		// objectsInGroup.forEach(function(object) {
+			// that.socket.send(JSON.stringify({
+				// msg: 'groupMove',
+				// data: {
+					// id: object.id,
+					// top: activeGroup.top+object.top,
+					// left: activeGroup.left+object.left,
+					// angle: object.angle,
+					// rotate: activeGroup.angle,
+					// width: object.getWidth(),
+					// height: object.getHeight(),
+					// centerX: center.x,
+					// centerY: center.y
+				// }
+			// }));	
+			
+		// });	
 	}
 	else if (activeObject) {
 		this.socket.send(JSON.stringify({
@@ -401,6 +513,85 @@ Whiteboard.prototype.disable = function(data) {
 	}
 };
 
+Whiteboard.prototype.groupCreate = function(data) {
+	console.log('group create',data.id);
+	var objArray = this.canvas2.getObjects();
+	var array = data.array;
+	//console.log(array);
+	var group = new fabric.Group();
+	group.top = data.top;
+	group.left = data.left;
+	group.id = data.id;
+	for(var i=0;i<array.length;i++)
+		for (var j = 0 ; j < objArray.length; j++) {
+			if(objArray[j].id ==array[i]){               //gets the object with id ='img1' 
+				//console.log(objArray[j].left,objArray[j].top);
+				group.addWithUpdate(objArray[j],{  //.clone()
+					left: group.left+objArray[j].left, //
+					top: group.top+objArray[j].top 			//
+				});
+				this.canvas2.remove(objArray[j]);				
+				break;
+			}
+		}
+	//console.log(group);
+	group.setCoords();
+    this.canvas2.add(group);
+	this.canvas2.renderAll();
+	this.canvas2.calcOffset();
+};
+
+Whiteboard.prototype.groupCancel = function(data) {
+	console.log('unselected',data.id);
+	var objArray = this.canvas2.getObjects();
+	var group;
+	for (var j = 0 ; j < objArray.length; j++) {
+		if(objArray[j].id ==data.id){  	//gets the object with id ='img1'
+			group = objArray[j];
+			var items = group._objects;
+			group._restoreObjectsState();
+			this.canvas2.remove(group);
+			for(var i = 0; i < items.length; i++) {
+			    this.canvas2.add(items[i]);
+			}
+			break;
+		}
+	}
+	var array = data.array;
+	for(var i=0;i<array.length;i++)
+		for (var j = 0 ; j < objArray.length; j++) {
+			if(objArray[j].id ==array[i]){  	//gets the object with id ='img1'
+				objArray[j].moveTo(i);
+				break;
+			}
+		}
+	this.canvas2.renderAll();
+	this.canvas2.calcOffset();
+};
+
+
+Whiteboard.prototype.groupSelected = function(data) {
+	console.log('selected',data.id);
+	var objArray = this.canvas2.getObjects();
+	for (var j = 0 ; j < objArray.length; j++) {
+		if(objArray[j].id ==data.id){               //gets the object with id ='img1' 
+			// if(this.idle == true){
+				// objArray[j].set({
+					// opacity: 0,
+					// selectable: false
+				// });
+			// }
+			objArray[j].top=data.top;
+			objArray[j].left=data.left;
+			objArray[j].angle=data.angle;
+			objArray[j].setCoords();
+			this.canvas2.renderAll();
+			this.canvas2.calcOffset();
+			break;
+		}
+	}
+};
+
 Whiteboard.prototype.selected = function(data) {
 	console.log('selected',data.id);
 	var objArray = this.canvas2.getObjects();
@@ -408,6 +599,12 @@ Whiteboard.prototype.selected = function(data) {
 		if(objArray[j].id ==data.id){               //gets the object with id ='img1' 
 			if(this.idle == true)
 				objArray[j].selectable = false;
+			objArray[j].top=data.top;
+			objArray[j].left=data.left;
+			objArray[j].angle=data.angle;
+			objArray[j].setCoords();
+			this.canvas2.renderAll();
+			this.canvas2.calcOffset();
 			break;
 		}
 	}
@@ -420,6 +617,23 @@ Whiteboard.prototype.unselected = function(data) {
 		if(objArray[j].id ==data.id){               //gets the object with id ='img1' 
 			if(this.idle == true)
 				objArray[j].selectable = true;
+			break;
+		}
+	}
+};
+
+Whiteboard.prototype.groupUnselected = function(data) {
+	console.log('unselected',data.id);
+	var objArray = this.canvas2.getObjects();
+	for (var j = 0 ; j < objArray.length; j++) {
+		if(objArray[j].id ==data.id){               //gets the object with id ='img1' 
+			if(this.idle == true){
+				objArray[j].set({
+					opacity: 1,
+					selectable: true
+				});
+				this.canvas2.renderAll();
+			}
 			break;
 		}
 	}
@@ -578,12 +792,16 @@ Whiteboard.prototype.rotate = function(data) {
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.id){  
+			if(this.canvasScale!=1)
+				reset(this, objArray[j]);
 			objArray[j].set('top',data.top);
 			objArray[j].set('left',data.left);
 			objArray[j].set('angle',data.angle);
-			objArray[j].set('width',data.width);
-			objArray[j].set('height',data.height);
+			// objArray[j].set('width',data.width);
+			// objArray[j].set('height',data.height);
 			objArray[j].setCoords();
+			if(this.canvasScale!=1)
+				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
 			this.canvas2.deactivateAllWithDispatch();
@@ -597,12 +815,17 @@ Whiteboard.prototype.groupRotate = function(data) {
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.id){  
-		    var objectOrigin = new fabric.Point(objArray[j].left, objArray[j].top);
+			console.log(objArray[j].angle);
+		    if(this.canvasScale!=1)
+				reset(this, objArray[j]);
+			var objectOrigin = new fabric.Point(objArray[j].left, objArray[j].top);
 			var new_loc = fabric.util.rotatePoint(objectOrigin, new fabric.Point(data.centerX, data.centerY), (data.angle-objArray[j].angle)* Math.PI / 180);
 			objArray[j].top = new_loc.y;
 			objArray[j].left = new_loc.x;
 			objArray[j].set('angle',data.angle);
-			objArray[j].setCoords();
+			objArray[j].setCoords();			
+			if(this.canvasScale!=1)
+				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
 			this.canvas2.deactivateAllWithDispatch();
@@ -612,43 +835,27 @@ Whiteboard.prototype.groupRotate = function(data) {
 };
 
 Whiteboard.prototype.scale = function(data) {
-	if(data.type=='circle' || data.type=='ellipse' || data.type=='text'){
-		//console.log(data.height,data.width);
-		var objArray = this.canvas2.getObjects();
-		for (var j = 0 ; j < objArray.length; j++) {
-			if(objArray[j].id ==data.id){  
-				objArray[j].set('top',data.top);
-				objArray[j].set('left',data.left);
-				objArray[j].set('scaleX',data.scaleX);
-				objArray[j].set('scaleY',data.scaleY);
-				objArray[j].setCoords();
-				this.canvas2.renderAll();
-				this.canvas2.calcOffset();
-				this.canvas2.deactivateAllWithDispatch();
-				break;
-			}
-		} 	
-	}
-	else{
-		var objArray = this.canvas2.getObjects();
-		for (var j = 0 ; j < objArray.length; j++) {
-			if(objArray[j].id ==data.id){  
-				objArray[j].set('top',data.top);
-				objArray[j].set('left',data.left);
-				objArray[j].set('width',data.width);
-				objArray[j].set('height',data.height);
-				objArray[j].setCoords();
-				this.canvas2.renderAll();
-				this.canvas2.calcOffset();
-				this.canvas2.deactivateAllWithDispatch();
-				break;
-			}
-		} 
-	}
+	var objArray = this.canvas2.getObjects();
+	for (var j = 0 ; j < objArray.length; j++) {
+		if(objArray[j].id ==data.id){  
+			if(this.canvasScale!=1)
+				reset(this, objArray[j]);
+			objArray[j].set('top',data.top);
+			objArray[j].set('left',data.left);
+			objArray[j].set('scaleX',data.scaleX);
+			objArray[j].set('scaleY',data.scaleY);
+			objArray[j].setCoords();
+			if(this.canvasScale!=1)
+				zoom(this, objArray[j]);
+			this.canvas2.renderAll();
+			this.canvas2.calcOffset();
+			this.canvas2.deactivateAllWithDispatch();
+			break;
+		}
+	} 	
 };
 
-Whiteboard.prototype.groupScale = function(data) {
-	this.canvas2.discardActiveGroup();
+Whiteboard.prototype.rectscale = function(data) {
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.id){  
@@ -656,6 +863,27 @@ Whiteboard.prototype.groupScale = function(data) {
 			objArray[j].set('left',data.left);
 			objArray[j].set('width',data.width);
 			objArray[j].set('height',data.height);
+			objArray[j].setCoords();
+			this.canvas2.renderAll();
+			this.canvas2.calcOffset();
+			this.canvas2.deactivateAllWithDispatch();
+			break;
+		}
+	} 	
+};
+
+
+
+
+Whiteboard.prototype.groupScale = function(data) {
+	this.canvas2.discardActiveGroup();
+	var objArray = this.canvas2.getObjects();
+	for (var j = 0 ; j < objArray.length; j++) {
+		if(objArray[j].id ==data.id){  
+			objArray[j].set('top',data.top);
+		    objArray[j].set('left',data.left);
+			// objArray[j].set('width',data.width);
+			// objArray[j].set('height',data.height);
 			objArray[j].set('scaleX',data.scaleX);
 			objArray[j].set('scaleY',data.scaleY);
 			objArray[j].setCoords();
@@ -710,10 +938,49 @@ Whiteboard.prototype.circlescale = function(data) {
 Whiteboard.prototype.move = function(data) {
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
-		if(objArray[j].id ==data.id){  
+		if(objArray[j].id ==data.id){
+			if(this.canvasScale!=1)
+				reset(this, objArray[j]);
 			objArray[j].set('top',data.top);
 			objArray[j].set('left',data.left);
 			objArray[j].setCoords();
+			if(this.canvasScale!=1)
+				zoom(this, objArray[j]);
+			this.canvas2.renderAll();
+			this.canvas2.calcOffset();
+			this.canvas2.deactivateAllWithDispatch();
+			break;
+		}
+	} 
+};
+
+Whiteboard.prototype.groupMove = function(data) {
+	var objArray = this.canvas2.getObjects();
+	for (var j = 0 ; j < objArray.length; j++) {
+		if(objArray[j].id ==data.id){
+			if(this.canvasScale!=1)
+				reset(this, objArray[j]);
+			// objArray[j].set('top',data.top);
+			// objArray[j].set('left',data.left);
+			// objArray[j].setCoords();
+			// console.log(data.rotate);
+			// if(data.rotate!=0){
+				// console.log('rotated move');
+				// var objectOrigin = new fabric.Point(data.left, data.top);
+				// var new_loc = fabric.util.rotatePoint(objectOrigin, new fabric.Point(data.centerX, data.centerY), ((data.rotate+data.angle)* Math.PI) / 180); //-objArray[j].angle
+				// objArray[j].top = new_loc.y;
+				// objArray[j].left = new_loc.x;
+				// //objArray[j].set('angle',data.angle+data.rotate);
+				// objArray[j].setCoords();
+			// }
+			// else{
+				console.log('unrotated move');
+				objArray[j].set('top',data.top);
+				objArray[j].set('left',data.left);
+				objArray[j].setCoords();
+		//	}
+			if(this.canvasScale!=1)
+				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
 			this.canvas2.deactivateAllWithDispatch();
@@ -739,6 +1006,24 @@ Whiteboard.prototype.create= function(data) {
 			id: data.id
 		});
 		console.log(square.id);
+		
+		// var scaleX = square.scaleX;
+		// var scaleY = square.scaleY;
+		// var left = square.left;
+		// var top = square.top;
+		
+		// var tempScaleX = scaleX * this.canvasScale;
+		// var tempScaleY = scaleY * this.canvasScale;
+		// var tempLeft = left * this.canvasScale;
+		// var tempTop = top * this.canvasScale;
+		
+		// square.scaleX = tempScaleX;
+		// square.scaleY = tempScaleY;
+		// square.left = tempLeft;
+		// square.top = tempTop;
+		
+		// square.setCoords();
+
 		this.canvas2.add(square); 
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
@@ -1321,7 +1606,7 @@ Whiteboard.prototype.rect = function() {
         that.canvas2.calcOffset();
 		
 		that.socket.send(JSON.stringify({
-			msg: 'scale',
+			msg: 'rectscale',
 			data: {
 				id: square.id,
 				top: square.top,
@@ -1472,7 +1757,7 @@ Whiteboard.prototype.square = function() {
         that.canvas2.calcOffset();
 		
 		that.socket.send(JSON.stringify({
-			msg: 'scale',
+			msg: 'rectscale',
 			data: {
 				id: square.id,
 				top: square.top,
@@ -2086,38 +2371,40 @@ Whiteboard.prototype.setColor = function(r,g,b) {
 	var activeObject = this.canvas2.getActiveObject(),
 	activeGroup = this.canvas2.getActiveGroup();
 	if (activeObject) {
-		if(!((activeObject.get('fill')=='transparent')||(activeObject.get('fill')==null)))
-			activeObject.fill = 'rgb(' + this.color.r + "," + this.color.g + "," + this.color.b +')'; 
-		if(activeObject.stroke!='null')
-			activeObject.stroke = 'rgb(' + this.color.r + "," + this.color.g + "," + this.color.b +')'; 
-		this.socket.send(JSON.stringify({
-			msg: 'colour',
-			data: {
-				id: activeObject.id,
-				fill: activeObject.fill,
-				stroke: activeObject.stroke
-			}
-		}));	
+		if(activeObject.type!=('image')){
+			if(!((activeObject.get('fill')=='transparent')||(activeObject.get('fill')==null)))
+				activeObject.fill = 'rgb(' + this.color.r + "," + this.color.g + "," + this.color.b +')'; 
+			if(activeObject.stroke!='null')
+				activeObject.stroke = 'rgb(' + this.color.r + "," + this.color.g + "," + this.color.b +')'; 
+			this.socket.send(JSON.stringify({
+				msg: 'colour',
+				data: {
+					id: activeObject.id,
+					fill: activeObject.fill,
+					stroke: activeObject.stroke
+				}
+			}));	
+		}
 	}
 	else if (activeGroup) {
 		var objectsInGroup = activeGroup.getObjects();
 		//this.canvas2.discardActiveGroup();
 		var that = this;
 		objectsInGroup.forEach(function(object) {
-			// console.log(object.fill);
-			// console.log(object.stroke);
-			if(!((object.get('fill')=='transparent')||(object.get('fill')==null)))
-				object.fill = 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')'; 
-			if(object.stroke!='null')
-				object.stroke = 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')'; 
-			that.socket.send(JSON.stringify({
-				msg: 'colour',
-				data: {
-					id: object.id,
-					fill: object.fill,
-					stroke: object.stroke
-				}
-			}));
+			if(object.type!=('image')){
+				if(!((object.get('fill')=='transparent')||(object.get('fill')==null)))
+					object.fill = 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')'; 
+				if(object.stroke!='null')
+					object.stroke = 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')'; 
+				that.socket.send(JSON.stringify({
+					msg: 'colour',
+					data: {
+						id: object.id,
+						fill: object.fill,
+						stroke: object.stroke
+					}
+				}));
+			}
 		});
 	}
 	this.canvas2.renderAll();
@@ -2130,17 +2417,18 @@ Whiteboard.prototype.setWidth = function(width) {
 	var activeObject = this.canvas2.getActiveObject(),
 	activeGroup = this.canvas2.getActiveGroup();
 	if (activeObject) {
-		// console.log(activeObject.strokeWidth);
-		if(activeObject.strokeWidth!=0){
-			activeObject.strokeWidth = this.width; 
-			activeObject.setCoords();
-			this.socket.send(JSON.stringify({
-				msg: 'width',
-				data: {
-					id: activeObject.id,
-					strokeWidth: activeObject.strokeWidth
-				}
-			}));	
+		if(activeObject.type!=('image')&&activeObject.type!=('text')){
+			if(activeObject.strokeWidth!=0){
+				activeObject.strokeWidth = this.width; 
+				activeObject.setCoords();
+				this.socket.send(JSON.stringify({
+					msg: 'width',
+					data: {
+						id: activeObject.id,
+						strokeWidth: activeObject.strokeWidth
+					}
+				}));	
+			}
 		}
 	}
 	else if (activeGroup) {
@@ -2148,16 +2436,18 @@ Whiteboard.prototype.setWidth = function(width) {
 		//this.canvas2.discardActiveGroup();
 		var that = this;
 		objectsInGroup.forEach(function(object) {
-			if(object.strokeWidth!=0){
-				object.strokeWidth = that.width; 
-				object.setCoords();
-				that.socket.send(JSON.stringify({
-					msg: 'width',
-					data: {
-						id: object.id,
-						strokeWidth: object.strokeWidth
-					}
-				}));
+			if(object.type!=('image')&&object.type!=('text')){
+				if(object.strokeWidth!=0){
+					object.strokeWidth = that.width; 
+					object.setCoords();
+					that.socket.send(JSON.stringify({
+						msg: 'width',
+						data: {
+							id: object.id,
+							strokeWidth: object.strokeWidth
+						}
+					}));
+				}
 			}
 		});
 	}

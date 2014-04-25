@@ -6,6 +6,14 @@ body {
 	color: #000;
 }
 
+#wrap {
+	width: 100%;
+	height: 90%;
+}
+
+#wrap > div {
+	height: 90%;
+}
 /* ~~ this container surrounds all other divs giving them their percentage-based width ~~ */
 
 .container {
@@ -16,34 +24,39 @@ body {
 	margin-right: 10px;
 	margin-bottom: 0;
 	margin-left: 10px;
-	width: 100%;
 }
 
 /* ~~ the header is not given a width. It will extend the full width of your layout. It contains an image placeholder that should be replaced with your own linked logo ~~ */
 .header {
 	background-color: #999;
+	width: 100%;
 	z-index: 9;
+	height: 5%;
+	max-height: 36px;
 }
 
 .sidebar1 {
+	position:fixed;
 	float: left;
 	background-color: #93A5C4;
-	height: 550px;
+	height: 100%;
 }
+
 .content {
 	float: left;
-	height: 550px;
+	position: absolute;
+	height: 100%;
 	background:linear-gradient(top,#009,#06C);
 	background:-moz-linear-gradient(top,#009,#06C);
 	background:-webkit-linear-gradient(top,#009,#06C);
 }
 .sidebar2 {
 	float: left;
+	position: absolute;
+	left:75%;
 	background-color: #9933FF;
-	height: 550px;
+	height: 100%;
 }
-
-
 
 .nav {
 	list-style: none;
