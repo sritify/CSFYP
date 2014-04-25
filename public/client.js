@@ -70,6 +70,8 @@ function Whiteboard(canvasId) {
 		groupUnselected: this.groupUnselected.bind(this),
 		groupCreate: this.groupCreate.bind(this),
 		groupCancel: this.groupCancel.bind(this),
+		groupColour: this.groupColour.bind(this),
+		groupWidth: this.groupWidth.bind(this),
 		create: this.create.bind(this),
 		remove: this.remove.bind(this),
 		restore: this.restore.bind(this),
@@ -569,6 +571,53 @@ Whiteboard.prototype.groupCancel = function(data) {
 	this.canvas2.calcOffset();
 };
 
+Whiteboard.prototype.groupColour = function(data) {
+	console.log('groupColour',data.id);
+	var objArray = this.canvas2.getObjects();
+	var group;
+	var that = this;
+	for (var j = 0 ; j < objArray.length; j++) {
+		if(objArray[j].id ==data.id){  	//gets the object with id ='img1'
+			group = objArray[j];
+			var objectsInGroup = group.getObjects();
+			objectsInGroup.forEach(function(object) {
+				if(object.type!=('image')){
+					if(!((object.get('fill')=='transparent')||(object.get('fill')==null)))
+						object.fill = 'rgb(' + data.color.r + "," + data.color.g + "," + data.color.b +')'; 
+					if(object.stroke!='null')
+						object.stroke = 'rgb(' + data.color.r + "," + data.color.g + "," + data.color.b +')'; 
+				}
+			});
+			break;
+		}
+	}
+	this.canvas2.renderAll();
+	this.canvas2.calcOffset();
+};
+
+Whiteboard.prototype.groupWidth = function(data) {
+	console.log('groupWidth',data.id);
+	var objArray = this.canvas2.getObjects();
+	var group;
+	var that = this;
+	for (var j = 0 ; j < objArray.length; j++) {
+		if(objArray[j].id ==data.id){  	//gets the object with id ='img1'
+			group = objArray[j];
+			var objectsInGroup = group.getObjects();
+			objectsInGroup.forEach(function(object) {
+				if(object.type!=('image')&&object.type!=('text')){
+					if(object.strokeWidth!=0){
+						object.strokeWidth = data.strokeWidth; 
+						object.setCoords();
+					}
+				}
+			});
+			break;
+		}
+	}
+	this.canvas2.renderAll();
+	this.canvas2.calcOffset();
+};
 
 Whiteboard.prototype.groupSelected = function(data) {
 	console.log('selected',data.id);
@@ -2387,23 +2436,32 @@ Whiteboard.prototype.setColor = function(r,g,b) {
 		}
 	}
 	else if (activeGroup) {
-		var objectsInGroup = activeGroup.getObjects();
 		//this.canvas2.discardActiveGroup();
+		//console.log(activeGroup.id);
+		this.socket.send(JSON.stringify({
+			msg: 'groupColour',
+			data: {
+				id: activeGroup.id,
+				color: this.color
+			}
+		}));
+		
 		var that = this;
+		var objectsInGroup = activeGroup.getObjects();
 		objectsInGroup.forEach(function(object) {
 			if(object.type!=('image')){
 				if(!((object.get('fill')=='transparent')||(object.get('fill')==null)))
 					object.fill = 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')'; 
 				if(object.stroke!='null')
 					object.stroke = 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')'; 
-				that.socket.send(JSON.stringify({
-					msg: 'colour',
-					data: {
-						id: object.id,
-						fill: object.fill,
-						stroke: object.stroke
-					}
-				}));
+				// that.socket.send(JSON.stringify({
+					// msg: 'colour',
+					// data: {
+						// id: object.id,
+						// fill: object.fill,
+						// stroke: object.stroke
+					// }
+				// }));
 			}
 		});
 	}
@@ -2432,21 +2490,20 @@ Whiteboard.prototype.setWidth = function(width) {
 		}
 	}
 	else if (activeGroup) {
+		this.socket.send(JSON.stringify({
+			msg: 'groupWidth',
+			data: {
+				id: activeGroup.id,
+				strokeWidth: this.width
+			}
+		}));
 		var objectsInGroup = activeGroup.getObjects();
-		//this.canvas2.discardActiveGroup();
 		var that = this;
 		objectsInGroup.forEach(function(object) {
 			if(object.type!=('image')&&object.type!=('text')){
 				if(object.strokeWidth!=0){
 					object.strokeWidth = that.width; 
 					object.setCoords();
-					that.socket.send(JSON.stringify({
-						msg: 'width',
-						data: {
-							id: object.id,
-							strokeWidth: object.strokeWidth
-						}
-					}));
 				}
 			}
 		});
