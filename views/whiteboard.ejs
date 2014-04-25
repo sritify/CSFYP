@@ -10,37 +10,32 @@
 	width: 75%;
   }
   .sidebar2{
-	width: 24%;
+	width: 25%;
 	padding-left: 10px;
-	margin-left: 2px;
   }
   </style>
   
-  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-  <script src="/activeclass.js" type="text/javascript" charset="utf-8"></script>
-  <!-- <script src="/jquery.hammer.js" type="text/javascript" charset="utf-8"></script> -->
-  <script src="fabric.js" type="text/javascript" charset="utf-8"></script>
-  <script src="/client.js" type="text/javascript" charset="utf-8"></script>
-  <script src="/jquery-1.7.2.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
   
-  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
-  <link href="/menu.css" rel="stylesheet" type="text/css">
-  <link href="/layout.css" rel="stylesheet" type="text/css">
-  <link href="/popup.css" rel="stylesheet" type="text/css">
-  <link href="/chat.css" rel="stylesheet" type="text/css">
-  <link href="/segment.css" rel="stylesheet" type="text/css">
-  <link href="/mainmenu_sub.css" rel="stylesheet" type="text/css">
-  
- <!-- Color Picker  
 	<link rel="stylesheet" href="colorpicker/css/colorpicker.css" type="text/css" />
     <link rel="stylesheet" media="screen" type="text/css" href="colorpicker/css/layout.css" />
-    <title>ColorPicker - jQuery plugin</title>
 	<script type="text/javascript" src="colorpicker/js/jquery.js"></script>
 	<script type="text/javascript" src="colorpicker/js/colorpicker.js"></script>
     <script type="text/javascript" src="colorpicker/js/eye.js"></script>
     <script type="text/javascript" src="colorpicker/js/utils.js"></script>
     <script type="text/javascript" src="colorpicker/js/layout.js?ver=1.0.2"></script>
- --> 
+  
+	<script src="/activeclass.js" type="text/javascript" charset="utf-8"></script>
+	<script src="fabric.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/client.js" type="text/javascript" charset="utf-8"></script>  
+
+	<link href="/menu.css" rel="stylesheet" type="text/css">
+	<link href="/layout.css" rel="stylesheet" type="text/css">
+	<link href="/popup.css" rel="stylesheet" type="text/css">
+	<link href="/chat.css" rel="stylesheet" type="text/css">
+	<link href="/segment.css" rel="stylesheet" type="text/css">
+	<link href="/mainmenu_sub.css" rel="stylesheet" type="text/css">
   
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
@@ -78,60 +73,61 @@
 				style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
 					<img src="/image/clear.png" alt="Clear" title="Clear" height="30" width="35"></button></a> <!--clear-->
 			</li>
-<!--COLOR-->
+<!--COLOR
 			<li id='color' class='color'><a>
 				<button style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
-					<img id='colorimg' src="/image/black.png" alt="Color" title="Color" height="30" width="35"></button> <!--color-->
+					<img id='colorimg' src="/image/black.png" alt="Color" title="Color" height="30" width="35"></button>
 				<ul>
 					<li class='active'><a>
 						<button onclick="setColor(0,0,0)"
 						style="color: #FFF; background-color: rgb(0,0,0)">
-							<img src="/image/black.png" alt="Black" title="Black" height="15" width="20"></button></a> <!--black-->
+							<img src="/image/black.png" alt="Black" title="Black" height="15" width="20"></button></a>
 					</li>
 					<li class=''><a>
 						<button onclick="setColor(128,0,128)"
 						style="color: #FFF; background-color: rgb(128,0,128)">
-							<img src="/image/purple.png" alt="Purple" title="Purple" height="15" width="20"></button></a> <!--purple-->
+							<img src="/image/purple.png" alt="Purple" title="Purple" height="15" width="20"></button></a>
 					</li>
 					<li class=''><a>
 						<button onclick="setColor(200,0,0)"
 						style="color: #FFF; background-color: rgb(200,0,0)">
-							<img src="/image/red.png" alt="Red" title="Red" height="15" width="20"></button></a> <!--red-->
+							<img src="/image/red.png" alt="Red" title="Red" height="15" width="20"></button></a>
 					</li>
 					<li class=''><a>
 						<button onclick="setColor(255,255,0)"
 						style="color: #FFF; background-color: rgb(255,255,0)">
-							<img src="/image/yellow.png" alt="Yellow" title="Yellow" height="15" width="20"></button></a> <!--yellow-->
+							<img src="/image/yellow.png" alt="Yellow" title="Yellow" height="15" width="20"></button></a> 
 					</li>
 					<li class=''><a>
 						<button onclick="setColor(0,128,0)"
 						style="color: #FFF; background-color: rgb(0,128,0)">
-							<img src="/image/green.png" alt="Green" title="Green" height="15" width="20"></button></a> <!--green-->
+							<img src="/image/green.png" alt="Green" title="Green" height="15" width="20"></button></a>
 					</li>
 					<li class=''><a>
 						<button onclick="setColor(0,0,255)"
 						style="color: #FFF; background-color: rgb(0,0,255)">
-							<img src="/image/blue.png" alt="Blue" title="Blue" height="15" width="20"></button></a> <!--blue-->
+							<img src="/image/blue.png" alt="Blue" title="Blue" height="15" width="20"></button></a>
 					</li>
 					<li class=''><a>
 						<button onclick="setColor(0,255,255)"
 						style="color: #FFF; background-color: rgb(0,255,255)">
-							<img src="/image/cyan.png" alt="Cyan" title="Cyan" height="15" width="20"></button></a> <!--cyan-->
+							<img src="/image/cyan.png" alt="Cyan" title="Cyan" height="15" width="20"></button></a>
 					</li>					
 					<li class=''><a>
 						<button onclick="setColor(255,255,255)"
 						style="color: #000000; background-color: rgb(255,255,255)">
-							<img src="/image/white.png" alt="White" title="White" height="15" width="20"></button></a> <!--white-->
+							<img src="/image/white.png" alt="White" title="White" height="15" width="20"></button></a>
 					</li>
 				</ul></a>
 			</li>
+-->
 			
 <!--TOOLS-->
-			<li id='tools' class='active'><a>
+			<li id='tools' class=''><a>
 				<button style="color: #000000; background-color: rgb(255,255,255); padding : 0px">
 					<img id='toolsimg' src="/image/pencil.png" alt="Tools" title="Tools"  height="30" width="35"></button> <!--tools-->
 				<ul>
-					<li class='active'><a>
+					<li class=''><a>
 						<button onclick="setFunc('draw')"
 						style="color: #000000; background-color: rgb(255,255,255)">
 							<img src="/image/pencil.png" alt="Pencil" title="Pencil" height="20" width="25"></button></a> <!--pencil-->
@@ -171,7 +167,7 @@
 					<img src="/image/eraser.png" alt="Remove Object" title="Remove Object" height="30" width="35"></button></a> <!--point eraser-->
 			</li>
 			
-			<li class=''><a>
+			<li class='active'><a>
 				<button onclick="select()"
 				style="color: #000000; background-color: rgb(255,255,255)">
 					<img src="/image/select.png" alt="Select" title="Select" height="30" width="35"></button></a> 
@@ -256,18 +252,32 @@
 		</ul>
 	</div>
 
-	<div class='content'>
-		<div id="container">
-			<!--   <canvas id="whiteboardCanvas" width="800" height="600"></canvas> -->
-
-
-		<canvas id="whiteboardCanvas" width="2000" height="2000" ></canvas>
-		<!--    <canvas id="bottomCanvas" width="800" height="600" 
-		style="position: absolute; left: 0; top: 0; z-index: -1; background-color:white; "></canvas>  -->
-		<!-- background-color:red; -->
-
+	
+	
+	<div id='wrap'>
+		<!-- WhiteBoard -->
+		
+		<div class='content'>
+			<div id="container">
+				<!--   <canvas id="whiteboardCanvas" width="800" height="100%"></canvas> -->
+				<canvas id="whiteboardCanvas" width="2000" height="2000" ></canvas>
+				<!--    <canvas id="bottomCanvas" width="800" height="600" 
+				style="position: absolute; left: 0; top: 0; z-index: -1; background-color:white; "></canvas>  -->
+				<!-- background-color:red; -->
+			</div>		
+		</div>
+	
+		<!-- Chatroom -->  
+		<div id="right" class="sidebar2">
+			<div style="width: 90%;  height: 20px;" >
+				<p id="welcome" align="left" style="display:inline">[Chatroom], You're <%= user.local.username %>!</p>
+			</div>
+			<div id="conversation"></div>
+			<input id="data" autofocus="autofocus"/>
+			<input class="button" type="button" id="datasend" value="send" />
 		</div>
 	</div>
+	
 
 
 <!-- Pop Up Edit Text-->
@@ -400,17 +410,15 @@
 				</li>
 			</ul>
 	</div>  
-<div>  
 
 <!-- Adjustment-->
 <div id="adjust" class="draggable">
-<!--	<div id="customwidget" style="float:left; margin:5px">
+	<div id="customwidget" style="float:left; margin:5px">
 		<div id="colorSelector">
-			<div style="background-color: #0000ff;">
+			<div style="background-color: #000000;">
 			</div>
 		</div>
 	</div>
--->
 	<div id="strokefill" style="float: left; margin-top: 10px; margin-left:10px">
 		
 		<select onChange="setStyle(this.options[this.options.selectedIndex].value);">
@@ -427,16 +435,6 @@
 		value="1"
 		oninput="setWidth(this.value);">
 	</div>
-</div>
-
-  
-<!-- Chatroom -->  
-<div id="right" class="sidebar2">
-		<div style="width: 90%;  height: 20px;" >
-		<p id="welcome" align="left" style="display:inline">[Chatroom], You're <%= user.local.username %>!</p></div>
-		<div id="conversation"></div>
-		<input id="data" autofocus="autofocus"/>
-		<input class="button" type="button" id="datasend" value="send" />
 </div>
 
 	

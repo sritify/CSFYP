@@ -181,23 +181,19 @@ border-radius: 15px;
 }
 
 
-#adjust:hover{
-	opacity: 1.0;
-}
 #adjust {
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 	position:absolute;
-    top: 100px;
-    left: 600px;
-    min-width:320px;
+    top: 95px;
+    left: 650px;
+    min-width:350px;
     min-height:18px;
     font-family:verdana;
     font-size:13px;
     background-color:rgb(240,240,240);
     border:2px solid grey;
-	opacity: 0.6;
     z-index:100000000000000000;
     display:inline;
 }

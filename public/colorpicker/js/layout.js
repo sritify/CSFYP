@@ -35,7 +35,7 @@
 			$(this).ColorPickerSetColor(this.value);
 		});
 		$('#colorSelector').ColorPicker({
-			color: '#0000ff',
+			color: '#000000',
 			onShow: function (colpkr) {
 				$(colpkr).fadeIn(500);
 				return false;
@@ -45,9 +45,9 @@
 				return false;
 			},
 			onChange: function (hsb, hex, rgb) {
+				setColor(rgb.r, rgb.g, rgb.b);
 				$('#colorSelector div').css('backgroundColor', '#' + hex);
 			},
-			
 		});
 	};
 	
@@ -65,4 +65,4 @@
 	};
 	
 	EYE.register(initLayout, 'init');
-})(jQuery)
+})(jQuery);

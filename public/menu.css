@@ -1,5 +1,7 @@
 #cssmenu {
 font-size: 20;
+height: 8%;
+max-height: 48px;
 }
 #cssmenu ul {
   margin: 0;
