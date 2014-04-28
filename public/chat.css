@@ -20,7 +20,8 @@
 	font-style:normal;
 	height:23px;
 	line-height:23px;
-	width:54px;
+	width: 15%;
+	min-width: 30px;
 	text-decoration:none;
 	text-align:center;
 	text-shadow:1px 1px 0px #ffffff;
@@ -34,20 +35,7 @@
 	position:relative;
 	top:1px;
 }
-/*
-.chatroom {
-	background-repeat: repeat;
-	margin: 0px;
-	padding: 0px;
-	float: left;
-	height: auto;
-	width: auto;
-	border-top-width: 0px;
-	border-right-width: 0px;
-	border-bottom-width: 0px;
-	border-left-width: 0px;
-}
-*/
+
 #conversation { 
 	width:90%;
 	padding:5px;
@@ -57,7 +45,7 @@
 	overflow-x:hidden;
     border:1px solid #CCC;
 	margin-top:10px;
-	height: 80%; 
+	height: 85%; 
 	white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
     white-space: -pre-wrap;      /* Opera 4-6 */
     white-space: -o-pre-wrap;    /* Opera 7 */
@@ -65,7 +53,7 @@
     word-wrap: break-word;       /* Internet Explorer 5.5+ */
     word-break: break-all;
     white-space: normal;
-				   }
+}
 				   
 #data { border-radius:2px; 
 		border:1px solid #ccc;  

@@ -1,13 +1,12 @@
 #cssmenu {
 font-size: 20;
-height: 8%;
 max-height: 48px;
 }
 #cssmenu ul {
   margin: 0;
-  padding: 0;
+  padding: 3px;
   font-size: 14px;
-  background: #585858 url(images/overlay.png) repeat-x 0 -110px; 
+  background: #E8E8E2 url(images/overlay.png) repeat-x 0 -110px; 
   line-height: 100%;
   border-radius: 1em;
   font: normal 0.5333333333333333em Arial, Helvetica, sans-serif;
@@ -38,9 +37,9 @@ max-height: 48px;
   display: block;
   padding: 0px 3px;
   margin: 2px;
-  border-radius: 5px;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
+  border-radius: 10px;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
 }
 #cssmenu a:hover {
@@ -90,9 +89,9 @@ max-height: 48px;
   padding: 0px;
   width: 50px;
   position: absolute;
-  top: 43px;
+  top: 40px;
   left: 0px;
-  background: #585858 url(images/overlay.png) repeat-x 0 0;
+  background: #E8E8E2 url(images/overlay.png) repeat-x 0 0;
   border: solid 1px #b4b4b4;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
@@ -120,9 +119,18 @@ max-height: 48px;
   line-height: 0;
   height: 0;
 }
-#cssmenu button{
-	padding: 1px;
+#cssmenu button, #cssmenu input{
+	padding: 0px;
+	width: 41px;
+	height: 39px;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 * html #cssmenu ul {
   height: 1%;
+}
+
+#cssmenu img{
+	margin: 0px;
 }
