@@ -58,16 +58,13 @@ function Whiteboard(canvasId) {
 		rotate: this.rotate.bind(this),
 		groupRotate: this.groupRotate.bind(this),
 		scale: this.scale.bind(this),
-		groupScale: this.groupScale.bind(this),
 		rectscale: this.rectscale.bind(this),
 		linescale: this.linescale.bind(this),
 		circlescale: this.circlescale.bind(this),
 		move: this.move.bind(this),
 		groupMove: this.groupMove.bind(this),
 		selected: this.selected.bind(this),
-		groupSelected: this.groupSelected.bind(this),
 		unselected: this.unselected.bind(this),
-		groupUnselected: this.groupUnselected.bind(this),
 		groupCreate: this.groupCreate.bind(this),
 		groupCancel: this.groupCancel.bind(this),
 		groupColour: this.groupColour.bind(this),
@@ -174,15 +171,6 @@ Whiteboard.prototype.onSelectionCreated = function(e) {
 		objectsInGroup.forEach(function(object) {	
 			console.log(object.id, activeGroup.top+object.top);
 			array.push(object.id);
-			that.socket.send(JSON.stringify({
-				msg: 'groupSelected',
-				data: {
-					id: object.id,
-					top: activeGroup.top+object.top,
-					left: activeGroup.left+object.left,
-					angle: (activeGroup.angle+object.angle)
-				}
-			}));
 		});	 
 		this.socket.send(JSON.stringify({
 			msg: 'groupCreate',
@@ -359,29 +347,6 @@ Whiteboard.prototype.onObjectScaled = function(e){
 				scaleY: activeGroup.scaleY
 			}
 		}));
-		// var objectsInGroup = activeGroup.getObjects();
-		// //canvas.discardActiveGroup();
-		// var center = activeGroup.getCenterPoint();
-		// objectsInGroup.forEach(function(object) {
-			// // console.log(object.id,objArray.length);
-			// // console.log(object.left);
-			// // console.log(left,center.x);
-			// // console.log(left+center.x);
-			// // console.log(object.top);
-			// // console.log(top,center.y);
-			// // console.log(top+center.y);
-			// that.socket.send(JSON.stringify({
-				// msg: 'groupScale',
-				// data: {
-					// type: object.type,
-					// id: object.id,
-					// top: (center.y+top),//*activeGroup.scaleY,//activeGroup.top+object.top,
-					// left: (center.x+left),//*activeGroup.scaleX,//activeGroup.left+object.left,
-					// scaleX: activeGroup.scaleX,
-					// scaleY: activeGroup.scaleY
-				// }
-			// }));
-		// });	
 	}
 	else 
 	if (activeObject) {
@@ -457,15 +422,15 @@ Whiteboard.prototype.conversation = function(data) {
 
 Whiteboard.prototype.copy = function(data) {
 	//console.log();
-	//console.log(data.newid);
+	console.log(data.newid);
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.oldid){               //gets the object with id ='img1' 
 			var object = fabric.util.object.clone(objArray[j]);
-			object.set("top", object.top+5);
-			object.set("left", object.left+5);
+			object.set("top", object.top+ 5*this.canvasScale);
+			object.set("left", object.left+ 5*this.canvasScale);
 			object.id = data.newid;
-			this.canvas2.add(object);
+			this.canvas2.add(object);		
 			this.canvas2.renderAll(); 
 			this.canvas2.calcOffset();
 			break;
@@ -517,6 +482,7 @@ Whiteboard.prototype.disable = function(data) {
 
 Whiteboard.prototype.groupCreate = function(data) {
 	console.log('group create',data.id);
+	
 	var objArray = this.canvas2.getObjects();
 	var array = data.array;
 	//console.log(array);
@@ -526,19 +492,19 @@ Whiteboard.prototype.groupCreate = function(data) {
 	group.id = data.id;
 	for(var i=0;i<array.length;i++)
 		for (var j = 0 ; j < objArray.length; j++) {
-			if(objArray[j].id ==array[i]){               //gets the object with id ='img1' 
-				//console.log(objArray[j].left,objArray[j].top);
-				group.addWithUpdate(objArray[j],{  //.clone()
-					left: group.left+objArray[j].left, //
-					top: group.top+objArray[j].top 			//
-				});
+			if(objArray[j].id ==array[i]){               //gets the object with id ='img1' 		
+				group.addWithUpdate(objArray[j]);//,{  //.clone()
+					// left: objArray[j].left, //
+					// top: objArray[j].top 			//
+				// });
 				this.canvas2.remove(objArray[j]);				
 				break;
 			}
 		}
-	//console.log(group);
-	group.setCoords();
+	group.selectable = false;
     this.canvas2.add(group);
+	group.setCoords();
+	
 	this.canvas2.renderAll();
 	this.canvas2.calcOffset();
 };
@@ -564,6 +530,7 @@ Whiteboard.prototype.groupCancel = function(data) {
 		for (var j = 0 ; j < objArray.length; j++) {
 			if(objArray[j].id ==array[i]){  	//gets the object with id ='img1'
 				objArray[j].moveTo(i);
+				objArray[j].setCoords();
 				break;
 			}
 		}
@@ -619,39 +586,21 @@ Whiteboard.prototype.groupWidth = function(data) {
 	this.canvas2.calcOffset();
 };
 
-Whiteboard.prototype.groupSelected = function(data) {
-	console.log('selected',data.id);
-	var objArray = this.canvas2.getObjects();
-	for (var j = 0 ; j < objArray.length; j++) {
-		if(objArray[j].id ==data.id){               //gets the object with id ='img1' 
-			// if(this.idle == true){
-				// objArray[j].set({
-					// opacity: 0,
-					// selectable: false
-				// });
-			// }
-			objArray[j].top=data.top;
-			objArray[j].left=data.left;
-			objArray[j].angle=data.angle;
-			objArray[j].setCoords();
-			this.canvas2.renderAll();
-			this.canvas2.calcOffset();
-			break;
-		}
-	}
-};
-
 Whiteboard.prototype.selected = function(data) {
 	console.log('selected',data.id);
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.id){               //gets the object with id ='img1' 
+			if(this.canvasScale!=1)
+				reset(this, objArray[j]);			
 			if(this.idle == true)
 				objArray[j].selectable = false;
 			objArray[j].top=data.top;
 			objArray[j].left=data.left;
 			objArray[j].angle=data.angle;
 			objArray[j].setCoords();
+			if(this.canvasScale!=1)
+				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
 			break;
@@ -671,25 +620,11 @@ Whiteboard.prototype.unselected = function(data) {
 	}
 };
 
-Whiteboard.prototype.groupUnselected = function(data) {
-	console.log('unselected',data.id);
-	var objArray = this.canvas2.getObjects();
-	for (var j = 0 ; j < objArray.length; j++) {
-		if(objArray[j].id ==data.id){               //gets the object with id ='img1' 
-			if(this.idle == true){
-				objArray[j].set({
-					opacity: 1,
-					selectable: true
-				});
-				this.canvas2.renderAll();
-			}
-			break;
-		}
-	}
-};
-
 Whiteboard.prototype.restore = function(data) {
+	resetZoom();
+	
 	this.canvas2.loadFromJSON(data.json);
+
 	this.canvas2.renderAll();
 	this.canvas2.calcOffset();
 };
@@ -721,7 +656,7 @@ Whiteboard.prototype.colour = function(data) {
 			objArray[j].setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	}
@@ -735,7 +670,7 @@ Whiteboard.prototype.width = function(data) {
 			objArray[j].setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	}
@@ -749,7 +684,7 @@ Whiteboard.prototype.editText = function(data) {
 			objArray[j].setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	}
@@ -763,7 +698,7 @@ Whiteboard.prototype.editFontSize = function(data) {
 			objArray[j].setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	}
@@ -777,7 +712,7 @@ Whiteboard.prototype.editFontFamily = function(data) {
 			objArray[j].setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	}
@@ -791,7 +726,7 @@ Whiteboard.prototype.editFontWeight = function(data) {
 			objArray[j].setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	}
@@ -805,7 +740,7 @@ Whiteboard.prototype.editFontStyle = function(data) {
 			objArray[j].setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	}
@@ -818,7 +753,7 @@ Whiteboard.prototype.up = function(data) {
 			this.canvas2.bringForward(objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 
@@ -831,7 +766,7 @@ Whiteboard.prototype.down = function(data) {
 			this.canvas2.sendBackwards(objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 
@@ -853,7 +788,7 @@ Whiteboard.prototype.rotate = function(data) {
 				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 
@@ -877,7 +812,7 @@ Whiteboard.prototype.groupRotate = function(data) {
 				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 
@@ -898,7 +833,7 @@ Whiteboard.prototype.scale = function(data) {
 				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 	
@@ -908,61 +843,47 @@ Whiteboard.prototype.rectscale = function(data) {
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.id){  
+			if(this.canvasScale!=1)
+				reset(this, objArray[j]);			
 			objArray[j].set('top',data.top);
 			objArray[j].set('left',data.left);
 			objArray[j].set('width',data.width);
 			objArray[j].set('height',data.height);
 			objArray[j].setCoords();
+			if(this.canvasScale!=1)
+				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 	
 };
 
-
-
-
-Whiteboard.prototype.groupScale = function(data) {
-	this.canvas2.discardActiveGroup();
-	var objArray = this.canvas2.getObjects();
-	for (var j = 0 ; j < objArray.length; j++) {
-		if(objArray[j].id ==data.id){  
-			objArray[j].set('top',data.top);
-		    objArray[j].set('left',data.left);
-			// objArray[j].set('width',data.width);
-			// objArray[j].set('height',data.height);
-			objArray[j].set('scaleX',data.scaleX);
-			objArray[j].set('scaleY',data.scaleY);
-			objArray[j].setCoords();
-			this.canvas2.renderAll();
-			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
-			break;
-		}
-	} 	
-};
 
 Whiteboard.prototype.linescale = function(data) {
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.id){ 
 			var line = objArray[j];
+			if(this.canvasScale!=1)
+				reset(this, line);	
 			this.canvas2.remove(line);
 			line.set('x1',data.x1);
 			line.set('y1',data.y1);
 			line.set('x2',data.x2);
 			line.set('y2',data.y2);
 			line.set('top',data.top);
+			line.set('left',data.left);
 			line.set('width',data.width);
 			line.set('height',data.height);
-			line.set('left',data.left);
 			line.setCoords();
 			this.canvas2.add(line);
+			if(this.canvasScale!=1)
+				zoom(this, line);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 
@@ -972,13 +893,17 @@ Whiteboard.prototype.circlescale = function(data) {
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.id){  
+			if(this.canvasScale!=1)
+				reset(this, objArray[j]);			
 			objArray[j].set('top',data.top);
 			objArray[j].set('left',data.left);
 			objArray[j].set('radius',data.radius);
 			objArray[j].setCoords();
+			if(this.canvasScale!=1)
+				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 
@@ -997,7 +922,7 @@ Whiteboard.prototype.move = function(data) {
 				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 
@@ -1032,7 +957,7 @@ Whiteboard.prototype.groupMove = function(data) {
 				zoom(this, objArray[j]);
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 			break;
 		}
 	} 
@@ -1056,27 +981,13 @@ Whiteboard.prototype.create= function(data) {
 		});
 		console.log(square.id);
 		
-		// var scaleX = square.scaleX;
-		// var scaleY = square.scaleY;
-		// var left = square.left;
-		// var top = square.top;
-		
-		// var tempScaleX = scaleX * this.canvasScale;
-		// var tempScaleY = scaleY * this.canvasScale;
-		// var tempLeft = left * this.canvasScale;
-		// var tempTop = top * this.canvasScale;
-		
-		// square.scaleX = tempScaleX;
-		// square.scaleY = tempScaleY;
-		// square.left = tempLeft;
-		// square.top = tempTop;
-		
-		// square.setCoords();
-
 		this.canvas2.add(square); 
+		if(this.canvasScale!=1){
+			zoom(this, square);
+			square.selectable = false;
+		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
-		// this.canvas2.deactivateAllWithDispatch();
 	}
 	else if(data.type == 'line'){
 		console.log(data.x1, data.y1, data.x2, data.y2);
@@ -1093,6 +1004,10 @@ Whiteboard.prototype.create= function(data) {
 		});
 		console.log(line.id);
 		this.canvas2.add(line); 
+		if(this.canvasScale!=1){
+			zoom(this, line);
+			line.selectable = false;
+		}
 		this.canvas2.renderAll();
         this.canvas2.calcOffset(); 
 		// console.log(line);
@@ -1113,6 +1028,10 @@ Whiteboard.prototype.create= function(data) {
 		});
 		console.log(square.id);
 		this.canvas2.add(square); 
+		if(this.canvasScale!=1){
+			zoom(this, square);
+			square.selectable = false;
+		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
 	}
@@ -1132,6 +1051,10 @@ Whiteboard.prototype.create= function(data) {
 		});
 		console.log(square.id);
 		this.canvas2.add(square); 
+		if(this.canvasScale!=1){
+			zoom(this, square);
+			square.selectable = false;
+		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
 	}
@@ -1151,6 +1074,10 @@ Whiteboard.prototype.create= function(data) {
 		path.set('path', npath);
 	
 		this.canvas2.add(path);
+		if(this.canvasScale!=1){
+			zoom(this, path);
+			path.selectable = false;
+		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
 
@@ -1168,6 +1095,10 @@ Whiteboard.prototype.create= function(data) {
 			id: data.id
         });
 		this.canvas2.add(text); 
+		if(this.canvasScale!=1){
+			zoom(this, text);
+			text.selectable = false;
+		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
 	}
@@ -1216,6 +1147,10 @@ Whiteboard.prototype.create= function(data) {
 			});
 
 			image.setCoords();
+			if(that.canvasScale!=1){
+				zoom(that, image);
+				image.selectable = false;
+			}
 			// var x = data.x,y = data.y;
 			// if(imgObj.width>that.canvas.width)
 				// if(imgObj.width/(that.canvas.width-x) > imgObj.height/(that.canvas.height-y))
@@ -1271,9 +1206,11 @@ Whiteboard.prototype.finish= function(data) {
 			});
 			this.canvas2.add(square);
 			square.setCoords();
+			if(this.canvasScale!=1)
+				objArray[j].selectable = false;
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			this.canvas2.deactivateAllWithDispatch();
+			//this.canvas2.deactivateAllWithDispatch();
 		}
 	}
 };
