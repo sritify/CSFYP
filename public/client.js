@@ -452,7 +452,11 @@ Whiteboard.prototype.enable = function(data) {
 		this.canvas2.forEachObject(function(o) {
 			o.selectable = true;
 		});
-		$("#updateMessage").prop("disabled", false); 
+		//$("#updateMessage").prop("disabled", false); 
+		var image = document.getElementById("updateMessage");
+		image.src = "/image/green.png";
+		image.alt = "Editable";
+		image.title= "Editable";						
 	}
 	else{
 		this.autoUpdate = 1;
@@ -473,6 +477,10 @@ Whiteboard.prototype.disable = function(data) {
 		this.canvas2.off('mouse:down');
 		this.canvas2.off('mouse:move');
 		$("#updateMessage").prop("disabled", true); 
+		var image = document.getElementById("updateMessage");
+		image.src = "/image/red.png";
+		image.alt = "Not Editable";
+		image.title= "Not Editable";
 	}
 	else{
 		this.autoUpdate = null;
