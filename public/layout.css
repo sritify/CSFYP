@@ -1,5 +1,6 @@
 html {
 	height: 100vh;
+	text-align:left;
 }
 
 body{
@@ -16,7 +17,7 @@ h1{
 
 p{
     margin: 0px;
-	color: #ffffff;
+	color: #000000;
 }
 
 canvas{

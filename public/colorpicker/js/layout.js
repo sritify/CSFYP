@@ -48,6 +48,10 @@
 				setColor(rgb.r, rgb.g, rgb.b);
 				$('#colorSelector div').css('backgroundColor', '#' + hex);
 			},
+			onClick: function (hsb, hex, rgb) {
+				setColor(rgb.r, rgb.g, rgb.b);
+				$('#colorSelector div').css('backgroundColor', '#' + hex);
+			}
 		});
 	};
 	

@@ -2,17 +2,16 @@
 -webkit-border-radius: 15px;
 -moz-border-radius: 15px;
 border-radius: 15px;
+text-align: left;
 }
 
 #texteditor2{
     position:absolute;
     top:80px;
     left:820px;
-    min-width:200px;
-    min-height:208px;
     font-family:verdana;
     font-size:13px;
-    padding:10px;
+    padding:5px;
     background-color:rgb(240,240,240);
     border:2px solid grey;
     z-index:100000000000000000;
@@ -20,7 +19,8 @@ border-radius: 15px;
 }
 
 #texteditor2 ul{
-	margin: 15px 3px 3px 5px;
+	margin-top: 15px;
+	margin-left: 3px;
 	padding: 0px;
 }
 
@@ -50,11 +50,9 @@ border-radius: 15px;
     position:absolute;
     top:80px;
     left:820px;
-    min-width:200px;
-    min-height:215px;
     font-family:verdana;
     font-size:13px;
-    padding:10px;
+    padding: 8px;
     background-color:rgb(240,240,240);
     border:2px solid grey;
     z-index:100000000000000000;
@@ -62,7 +60,8 @@ border-radius: 15px;
 }
 
 #texteditor ul{
-	margin: 15px 3px 3px 5px;
+	margin-top: 15px;
+	margin-left: 3px;
 	padding: 0px;
 }
 
@@ -186,10 +185,9 @@ border-radius: 15px;
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 	position:absolute;
-    top: 95px;
-    left: 650px;
-    min-width:350px;
-    min-height:18px;
+    top: 15%;
+    left: 15%;
+	padding: 3px;
     font-family:verdana;
     font-size:13px;
     background-color:rgb(240,240,240);
