@@ -36,6 +36,7 @@ function Whiteboard(canvasId) {
 	this.canvas2.on('object:rotating', this.onObjectRotated.bind(this));
 	this.canvas2.on('object:scaling', this.onObjectScaled.bind(this));
 	this.canvas2.on('object:moving', this.onObjectMoving.bind(this));
+	this.canvas2.on('object:modified', this.onObjectModified.bind(this));
 	this.canvas2.on('object:added', this.onObjectAdded.bind(this));
 	this.canvas2.on('selection:created', this.onSelectionCreated.bind(this));
 
@@ -45,6 +46,7 @@ function Whiteboard(canvasId) {
 
     this.messageHandlers = {
         initCommands: this.initCommands.bind(this),
+		initial: this.initial.bind(this),
 		draw: this.draw.bind(this),
 		enable: this.enable.bind(this),
 		disable: this.disable.bind(this),
@@ -237,6 +239,13 @@ Whiteboard.prototype.onSelectionCleared = function(e) {
 			}
 		}));
 		this.canvas2.discardActiveGroup();
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
 	}
 	else if (activeObject) {
 		this.selectedObject = 0;
@@ -294,24 +303,6 @@ Whiteboard.prototype.onObjectRotated = function(e) {
 			}
 		}));
 		var objectsInGroup = activeGroup.getObjects();
-		//canvas.discardActiveGroup();
-		// objectsInGroup.forEach(function(object) {	
-			// console.log(activeGroup.angle,object.angle);
-			// var center = activeGroup.getCenterPoint();
-			// that.socket.send(JSON.stringify({
-				// msg: 'groupRotate',
-				// data: {
-					// id: object.id,
-					// top: activeGroup.top+object.top,
-					// left: activeGroup.left+object.left,
-					// angle: (activeGroup.angle+object.angle),
-					// width: object.getWidth(),
-					// height: object.getHeight(),
-					// centerX: center.x,
-					// centerY: center.y
-				// }
-			// }));
-		// });	
 	}
 	else if (activeObject) {
 		this.socket.send(JSON.stringify({
@@ -383,23 +374,6 @@ Whiteboard.prototype.onObjectMoving = function(e){
 				left: activeGroup.left,
 			}
 		}));
-		// objectsInGroup.forEach(function(object) {
-			// that.socket.send(JSON.stringify({
-				// msg: 'groupMove',
-				// data: {
-					// id: object.id,
-					// top: activeGroup.top+object.top,
-					// left: activeGroup.left+object.left,
-					// angle: object.angle,
-					// rotate: activeGroup.angle,
-					// width: object.getWidth(),
-					// height: object.getHeight(),
-					// centerX: center.x,
-					// centerY: center.y
-				// }
-			// }));	
-			
-		// });	
 	}
 	else if (activeObject) {
 		this.socket.send(JSON.stringify({
@@ -408,6 +382,19 @@ Whiteboard.prototype.onObjectMoving = function(e){
 				id: e.target.id,
 				top: e.target.top,
 				left: e.target.left,
+			}
+		}));
+	}
+}	
+
+Whiteboard.prototype.onObjectModified = function(e){
+	if(e.target.type!='group'){
+		console.log("modified!");
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
 			}
 		}));
 	}
@@ -636,6 +623,17 @@ Whiteboard.prototype.restore = function(data) {
 	this.canvas2.renderAll();
 	this.canvas2.calcOffset();
 };
+
+Whiteboard.prototype.initial = function(data) {
+	console.log("initial!");
+	console.log(data.json);
+	
+	this.canvas2.loadFromJSON(data.json);
+
+	this.canvas2.renderAll();
+	this.canvas2.calcOffset();
+};
+
 
 Whiteboard.prototype.type = function(data) {
     // Set the color
@@ -996,6 +994,13 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));	
 	}
 	else if(data.type == 'line'){
 		console.log(data.x1, data.y1, data.x2, data.y2);
@@ -1018,8 +1023,13 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
         this.canvas2.calcOffset(); 
-		// console.log(line);
-		// this.temp2 = line;
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
 	}
 	else if(data.type == 'circle'){
 		var square = new fabric.Circle({ 
@@ -1042,6 +1052,13 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
 	}
 	else if(data.type == 'ellipse'){
 		var square = new fabric.Ellipse({ 
@@ -1065,6 +1082,13 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
 	}
 	else if(data.type == 'path'){
 		var path = new fabric.Path('M 0 0 L 0 0', {
@@ -1088,7 +1112,13 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
-
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
 	}
 	else if(data.type == 'text'){
 		var text = new fabric.Text(data.text, {
@@ -1125,7 +1155,13 @@ Whiteboard.prototype.create= function(data) {
 		
 		this.canvas2.add(image);
 		this.canvas2.sendToBack(image);
-		
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
 		//console.log(image);
 	
 		var that = this;
@@ -1194,6 +1230,13 @@ Whiteboard.prototype.create= function(data) {
 			//that.canvas2.add(image);
 			that.canvas2.renderAll();
 			that.canvas2.calcOffset(); 
+			var json = JSON.stringify(that.canvas2.toJSON(['id']));
+			that.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
 		}
 	}
 };
@@ -1219,6 +1262,13 @@ Whiteboard.prototype.finish= function(data) {
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
 			//this.canvas2.deactivateAllWithDispatch();
+			var json = JSON.stringify(this.canvas2.toJSON(['id']));
+			this.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
 		}
 	}
 };
@@ -1227,6 +1277,13 @@ Whiteboard.prototype.bgColor = function(data) {
 	this.canvas2.backgroundColor='rgb(' + data.color.r + "," + data.color.g + "," + data.color.b +')';
 	this.canvas2.renderAll();
     this.canvas2.calcOffset(); 	
+	var json = JSON.stringify(this.canvas2.toJSON(['id']));
+	this.socket.send(JSON.stringify({
+		msg: 'save',
+		data: {
+			json: json
+		}
+	}));
 };
 
 Whiteboard.prototype.draw = function() {
@@ -2256,23 +2313,7 @@ Whiteboard.prototype.line = function() {
 					id: line.id
 				}
 			}));	
-			// that.socket.send(JSON.stringify({
-				// msg: 'create',
-				// data: {
-					// type: 'line',
-					// id: line.id,
-					// left: line.left,
-					// top:line.top,
-					// width: line.width,
-					// height:line.height,
-					// x1: line.x1,
-					// y1: line.y1,
-					// x2: line.x2,
-					// y2: line.y2,
-					// strokeWidth: line.strokeWidth, 
-					// stroke: line.stroke,
-				// }
-			// }));
+
 		}
 	} 
 }
@@ -2379,6 +2420,13 @@ Whiteboard.prototype.setColor = function(r,g,b) {
 				}
 			}));	
 		}
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
 	}
 	else if (activeGroup) {
 		//this.canvas2.discardActiveGroup();
@@ -2399,14 +2447,6 @@ Whiteboard.prototype.setColor = function(r,g,b) {
 					object.fill = 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')'; 
 				if(object.stroke!='null')
 					object.stroke = 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')'; 
-				// that.socket.send(JSON.stringify({
-					// msg: 'colour',
-					// data: {
-						// id: object.id,
-						// fill: object.fill,
-						// stroke: object.stroke
-					// }
-				// }));
 			}
 		});
 	}
@@ -2432,6 +2472,13 @@ Whiteboard.prototype.setWidth = function(width) {
 					}
 				}));	
 			}
+			var json = JSON.stringify(this.canvas2.toJSON(['id']));
+			this.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
 		}
 	}
 	else if (activeGroup) {
@@ -2451,7 +2498,7 @@ Whiteboard.prototype.setWidth = function(width) {
 					object.setCoords();
 				}
 			}
-		});
+		});	
 	}
 	this.canvas2.renderAll();
 	this.canvas2.calcOffset();
@@ -2673,8 +2720,8 @@ Whiteboard.prototype.addCanvasEventListeners = function() {
 	formElement = document.getElementById("textBox2");
 	formElement.addEventListener("keyup", this.textBoxChanged2.bind(this));		
 	
-	formElement = document.getElementById("textSize2");
-	formElement.addEventListener("change", this.textSizeChanged2.bind(this));		
+	// formElement = document.getElementById("textSize2");
+	// formElement.addEventListener("change", this.textSizeChanged2.bind(this));		
 	
 	formElement = document.getElementById("textFont2");
 	formElement.addEventListener("change", this.textFontChanged2.bind(this));		
@@ -2729,31 +2776,19 @@ Whiteboard.prototype.textBoxChanged2 = function(e) {
 			activeObject.setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
+			var json = JSON.stringify(this.canvas2.toJSON(['id']));
+			this.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
 		}
 		this.socket.send(JSON.stringify({
 			msg: 'editText',
 			data: {
 				id: activeObject.id,
 				text: activeObject.text
-			}
-		}));	
-	}
-};
-
-Whiteboard.prototype.textSizeChanged2 = function(e) {
-	var activeObject = this.canvas2.getActiveObject();
-	if (activeObject) {
-		if(activeObject.type=='text'){
-			activeObject.fontSize = e.target.value;
-			activeObject.setCoords();
-			this.canvas2.renderAll();
-			this.canvas2.calcOffset();
-		}
-		this.socket.send(JSON.stringify({
-			msg: 'editFontSize',
-			data: {
-				id: activeObject.id,
-				fontSize: activeObject.fontSize
 			}
 		}));	
 	}
@@ -2767,6 +2802,13 @@ Whiteboard.prototype.textFontChanged2 = function(e) {
 			activeObject.setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
+			var json = JSON.stringify(this.canvas2.toJSON(['id']));
+			this.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
 		}
 		this.socket.send(JSON.stringify({
 			msg: 'editFontFamily',
@@ -2786,6 +2828,13 @@ Whiteboard.prototype.fontWeightChanged2 = function(e) {
 			activeObject.setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
+			var json = JSON.stringify(this.canvas2.toJSON(['id']));
+			this.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
 		}
 		this.socket.send(JSON.stringify({
 			msg: 'editFontWeight',
@@ -2805,6 +2854,13 @@ Whiteboard.prototype.fontStyleChanged2 = function(e) {
 			activeObject.setCoords();
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
+			var json = JSON.stringify(this.canvas2.toJSON(['id']));
+			this.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
 		}
 		this.socket.send(JSON.stringify({
 			msg: 'editFontStyle',

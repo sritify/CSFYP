@@ -98,6 +98,7 @@ var removedImages = [];
 global.host = new Array();
 global.connections = new Array();
 //var connections = [];
+global.json = new Array();
 global.canvasCommands = new Array();
 //var canvasCommands = [];
 global.chatHistory = new Array();
@@ -107,6 +108,7 @@ global.roomInfo = new Array();
 global.userRoom = new Array();
 global.room = new Array();
 global.date = new Array();
+
 var id = 0;
 
 wsServer.on('request', function(request) {
@@ -141,6 +143,13 @@ wsServer.on('request', function(request) {
             try {
                 var command = JSON.parse(message.utf8Data);
 				//console.log(command);
+				
+				if(command.msg === 'save'){
+					global.json[connection.room] = command.data.json;
+					global.canvasCommands[connection.room] = new Array();
+					return;
+				}
+				
 				
 				// if(command.msg === 'undo'){
 					// removedImages.push(canvas.toDataURL("image/png"));
@@ -223,6 +232,15 @@ wsServer.on('request', function(request) {
 					global.connections[connection.room].push(connection);
 					// connection.id = id++;
 					// console.log(connection.id);
+					
+					connection.sendUTF(JSON.stringify({
+						msg: "initial",
+						data: {
+							json: global.json[connection.room]
+						}
+					}));
+	
+					console.log(global.canvasCommands[connection.room]);
 					
 					//Send all the existing canvas commands to the new client
 					connection.sendUTF(JSON.stringify({

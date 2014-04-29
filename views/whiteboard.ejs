@@ -275,12 +275,13 @@
 				</select>
 			</li>
 			<li>
-				Text Size: 
+				Text Size: 				
 				<input class="slider" type="range" id="textSize2"
-				min="0"
+				min="1"
 				max="200"
 				step="1"
-				value="30">
+				value="30"
+				oninput="textSizeChanged2(this.value);">
 			</li>
 		</ul>
 	</div>
@@ -387,7 +388,7 @@
 		<b>Thickness:</b>
 	</div>
 	<div id="sizebar" style="float: left; margin-top: 12px; margin-left:10px;">
-		<input class="slider" type="range" id="textSize2"
+		<input class="slider" type="range" id="textSize3"
 		min="1"
 		max="20"
 		step="1"
@@ -611,7 +612,15 @@
 				client.canvas2.renderAll();
 				client.canvas2.calcOffset(); 	
 				client.sendClear();
+				var json = JSON.stringify(client.canvas2.toJSON(['id']));
+				client.socket.send(JSON.stringify({
+					msg: 'save',
+					data: {
+						json: json
+					}
+				}));	
 			}
+			
 		}
     }
 	
@@ -631,6 +640,12 @@
 						json: json
 					}
 				}));
+				client.socket.send(JSON.stringify({
+					msg: 'save',
+					data: {
+						json: json
+					}
+				}));	
 			}
 		}
     }
@@ -656,6 +671,13 @@
 						id: activeObject.id
 					}
 				}));
+				var json = JSON.stringify(client.canvas2.toJSON(['id']));
+				client.socket.send(JSON.stringify({
+					msg: 'save',
+					data: {
+						json: json
+					}
+				}));
 			}
 		}
     }
@@ -671,6 +693,13 @@
 					msg: 'up',
 					data: {
 						id: activeObject.id
+					}
+				}));
+				var json = JSON.stringify(client.canvas2.toJSON(['id']));
+				client.socket.send(JSON.stringify({
+					msg: 'save',
+					data: {
+						json: json
 					}
 				}));
 			}
@@ -739,7 +768,14 @@
 			copiedObject = object;
 		}
 		client.canvas2.renderAll(); 
-		client.canvas2.calcOffset();		
+		client.canvas2.calcOffset();	
+		var json = JSON.stringify(client.canvas2.toJSON(['id']));
+		client.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));		
 	}
 	
 	function backgroundColor() {
@@ -1295,6 +1331,32 @@
 		console.log('scroll');
 		client.canvas2.calcOffset();
 	});
+	
+	function textSizeChanged2(value) {
+		var activeObject = client.canvas2.getActiveObject();
+		if (activeObject) {
+			if(activeObject.type=='text'){
+				activeObject.fontSize = value;
+				activeObject.setCoords();
+				client.canvas2.renderAll();
+				client.canvas2.calcOffset();
+				var json = JSON.stringify(client.canvas2.toJSON(['id']));
+				client.socket.send(JSON.stringify({
+					msg: 'save',
+					data: {
+						json: json
+					}
+				}));
+			}
+			client.socket.send(JSON.stringify({
+				msg: 'editFontSize',
+				data: {
+					id: activeObject.id,
+					fontSize: activeObject.fontSize
+				}
+			}));	
+		}
+	};
 	
 	client.canvas2.renderAll();
 	client.canvas2.calcOffset();
