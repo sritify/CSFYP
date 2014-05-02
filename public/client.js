@@ -424,8 +424,8 @@ Whiteboard.prototype.onObjectMoving = function(e){
 }	
 
 Whiteboard.prototype.onObjectModified = function(e){
-	var json = JSON.stringify(this.canvas2.toJSON(['id']));
 	if(e.target.type!='group'){
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
 		console.log("modified!");
 		this.socket.send(JSON.stringify({
 			msg: 'save',
