@@ -25,9 +25,20 @@ function Whiteboard(canvasId) {
 	this.autoUpdate;
 	this.canvas2 = new fabric.Canvas(canvasId);
 	this.canvasScale = 1;
+	this.selectList = {};
 	
 	fabric.Object.prototype.originX = "center"; 
 	fabric.Object.prototype.originY = "center";
+	
+	fabric.Image.fromURL=function(d,f,e){
+		var c=fabric.document.createElement("img");
+		c.onload=function(){
+			if(f){f(new fabric.Image(c,e))}
+			c=c.onload=null
+		};
+		c.setAttribute('crossOrigin','anonymous');
+		c.src=d;
+	};
 	
 	this.canvas2.backgroundColor="white";
 	
@@ -41,8 +52,6 @@ function Whiteboard(canvasId) {
 	this.canvas2.on('selection:created', this.onSelectionCreated.bind(this));
 
 	//this.canvas2.on('object:removed', this.onObjectRemoved.bind(this));
-	
-	var canvas;
 
     this.messageHandlers = {
         initCommands: this.initCommands.bind(this),
@@ -77,6 +86,7 @@ function Whiteboard(canvasId) {
 		finish: this.finish.bind(this),
 		colour: this.colour.bind(this),
 		width: this.width.bind(this),
+		selection: this.selection.bind(this),
 		copy: this.copy.bind(this),
 		up: this.up.bind(this),
 		down: this.down.bind(this),
@@ -107,6 +117,7 @@ function Whiteboard(canvasId) {
 	this.fontStyle = "normal";
 	this.font = this.fontWeight + " " + this.fontStyle + " " + this.fontSize + "px " + this.fontFace;
 	this.imageBase64 = null;
+	this.currentImage;
 	this.savedImages = [];
 	this.removedImages = [];
 	this.selectedObject = 0;
@@ -153,15 +164,6 @@ function zoom(that, object){
 	object.setCoords();
 }
 
-// Whiteboard.prototype.onObjectRemoved = function(e) {
-	// this.socket.send(JSON.stringify({
-		// msg: 'remove',
-		// data: {
-			// id: e.target.id
-		// }
-	// }));
-// }
-
 Whiteboard.prototype.onSelectionCreated = function(e) {
 	//console.log("selection created");
 	activeGroup = this.canvas2.getActiveGroup();
@@ -171,8 +173,8 @@ Whiteboard.prototype.onSelectionCreated = function(e) {
 		activeGroup.id= this.auth+(this.i++);
 		var array = new Array();
 		objectsInGroup.forEach(function(object) {	
-			console.log(object.id, activeGroup.top+object.top);
 			array.push(object.id);
+			//that.selectList[object.id]=[false, that.username];		
 		});	 
 		this.socket.send(JSON.stringify({
 			msg: 'groupCreate',
@@ -180,31 +182,39 @@ Whiteboard.prototype.onSelectionCreated = function(e) {
 				id: activeGroup.id,
 				array: array,
 				top: activeGroup.top,
-				left: activeGroup.left
+				left: activeGroup.left,
+				user: this.username
 			}
-		}));	
+		}));
+		this.selectList[activeGroup.id]=[false, this.username];		
 	}
 } 
 
 Whiteboard.prototype.onObjectSelected = function(e) {
-	if(this.selectedObject != 0)
+	if(this.selectedObject != 0){
 		this.socket.send(JSON.stringify({
 			msg: 'unselected',
 			data: {
-				id: this.selectedObject
+				id: this.selectedObject,
+				user: this.username
 			}
 		}));
+		this.selectList[this.selectedObject]=[true, this.username];
+	}
 	this.selectedObject = e.target.id;
-	if(typeof e.target.id !== "undefined")
+	if(typeof e.target.id !== "undefined"){
 		this.socket.send(JSON.stringify({
 			msg: 'selected',
 			data: {
+				user: this.username,
 				id: e.target.id,
 				top: e.target.top,
 				left: e.target.left,
 				angle: e.target.angle
 			}
 		}));
+		this.selectList[e.target.id]=[false, this.username];
+	}
 	if(e.target.type=='text'){
 		var text =  e.target;
 		$("#edittext").prop("disabled", false);
@@ -213,9 +223,12 @@ Whiteboard.prototype.onObjectSelected = function(e) {
 		$("#textFont2").val(text.fontFamily);
 		$("#fontWeight2").val(text.fontWeight);
 		$("#fontStyle2").val(text.fontStyle);
+		openPopup('texteditor2'); 
 	}
-	else
+	else{
 		$("#edittext").prop("disabled", true); 
+		closePopup('texteditor2');
+	}
 }
 
 Whiteboard.prototype.onSelectionCleared = function(e) {
@@ -235,9 +248,21 @@ Whiteboard.prototype.onSelectionCleared = function(e) {
 			msg: 'groupCancel',
 			data: {
 				id: activeGroup.id,
-				array: array
+				array: array,
+				user: this.username
 			}
 		}));
+		this.selectList[activeGroup.id]=[false, this.username];		
+		for(var i =0;i< activeGroup._objects.length;i++){
+			this.socket.send(JSON.stringify({
+				msg: 'unselected',
+				data: {
+					id: activeGroup._objects[i].id,
+					user: this.username
+				}
+			}));
+			//this.selectList[activeGroup._objects[i].id]=[true, this.username];
+		}
 		this.canvas2.discardActiveGroup();
 		var json = JSON.stringify(this.canvas2.toJSON(['id']));
 		this.socket.send(JSON.stringify({
@@ -252,11 +277,14 @@ Whiteboard.prototype.onSelectionCleared = function(e) {
 		this.socket.send(JSON.stringify({
 			msg: 'unselected',
 			data: {
-				id: activeObject.id
+				id: activeObject.id,
+				user: this.username
 			}
 		}));
+		this.selectList[activeObject.id]=[true, this.username];
 	}
 	$("#edittext").prop("disabled", true); 
+	closePopup('texteditor2');
 }
 
 Whiteboard.prototype.onObjectAdded = function(e) {
@@ -279,6 +307,14 @@ Whiteboard.prototype.onObjectAdded = function(e) {
 				id: e.target.id 
 			}
 		}));
+		this.socket.send(JSON.stringify({
+			msg: 'unselected',
+			data: {
+				id: e.target.id,
+				user: this.username
+			}
+		}));
+		this.selectList[e.target.id]=[true, this.username];
 		//console.log(e.target);
 		//this.temp = e.target;
 	}
@@ -388,9 +424,9 @@ Whiteboard.prototype.onObjectMoving = function(e){
 }	
 
 Whiteboard.prototype.onObjectModified = function(e){
+	var json = JSON.stringify(this.canvas2.toJSON(['id']));
 	if(e.target.type!='group'){
 		console.log("modified!");
-		var json = JSON.stringify(this.canvas2.toJSON(['id']));
 		this.socket.send(JSON.stringify({
 			msg: 'save',
 			data: {
@@ -398,6 +434,9 @@ Whiteboard.prototype.onObjectModified = function(e){
 			}
 		}));
 	}
+	this.removedImages = [];
+	this.savedImages.push(this.currentImage);
+	this.currentImage = json;
 }	
 
 Whiteboard.prototype.conversation = function(data) {
@@ -406,6 +445,24 @@ Whiteboard.prototype.conversation = function(data) {
 	var objDiv = document.getElementById("conversation");
 	objDiv.scrollTop = objDiv.scrollHeight;	
 };
+
+Whiteboard.prototype.selection = function(data) {
+	console.log(data);
+	this.selectList = data.json;
+	
+	var that = this;
+	this.canvas2.forEachObject(function(o) {
+		console.log(o.id);
+		if(that.selectList[o.id][1]==that.username){
+			o.selectable = true;
+			//console.log('yeah');
+		}
+		else{
+			o.selectable = that.selectList[o.id][0];
+			//console.log('oh...');
+		}
+	});
+}
 
 Whiteboard.prototype.copy = function(data) {
 	//console.log();
@@ -477,7 +534,7 @@ Whiteboard.prototype.disable = function(data) {
 
 Whiteboard.prototype.groupCreate = function(data) {
 	console.log('group create',data.id);
-	
+	this.selectList[data.id]=[false, data.user];
 	var objArray = this.canvas2.getObjects();
 	var array = data.array;
 	//console.log(array);
@@ -485,7 +542,8 @@ Whiteboard.prototype.groupCreate = function(data) {
 	group.top = data.top;
 	group.left = data.left;
 	group.id = data.id;
-	for(var i=0;i<array.length;i++)
+	for(var i=0;i<array.length;i++){
+		this.selectList[array[i]]=[false, data.user];
 		for (var j = 0 ; j < objArray.length; j++) {
 			if(objArray[j].id ==array[i]){               //gets the object with id ='img1' 		
 				group.addWithUpdate(objArray[j]);//,{  //.clone()
@@ -496,6 +554,7 @@ Whiteboard.prototype.groupCreate = function(data) {
 				break;
 			}
 		}
+	}
 	group.selectable = false;
     this.canvas2.add(group);
 	group.setCoords();
@@ -506,6 +565,7 @@ Whiteboard.prototype.groupCreate = function(data) {
 
 Whiteboard.prototype.groupCancel = function(data) {
 	console.log('unselected',data.id);
+	this.selectList[data.id]=[true, data.user];
 	var objArray = this.canvas2.getObjects();
 	var group;
 	for (var j = 0 ; j < objArray.length; j++) {
@@ -583,6 +643,7 @@ Whiteboard.prototype.groupWidth = function(data) {
 
 Whiteboard.prototype.selected = function(data) {
 	console.log('selected',data.id);
+	this.selectList[data.id]=[false, data.user];
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.id){               //gets the object with id ='img1' 
@@ -605,6 +666,7 @@ Whiteboard.prototype.selected = function(data) {
 
 Whiteboard.prototype.unselected = function(data) {
 	console.log('unselected',data.id);
+	this.selectList[data.id]=[true, data.user];
 	var objArray = this.canvas2.getObjects();
 	for (var j = 0 ; j < objArray.length; j++) {
 		if(objArray[j].id ==data.id){               //gets the object with id ='img1' 
@@ -616,10 +678,51 @@ Whiteboard.prototype.unselected = function(data) {
 };
 
 Whiteboard.prototype.restore = function(data) {
+	var scale = this.canvasScale;
 	resetZoom();
-	
 	this.canvas2.loadFromJSON(data.json);
-
+	this.canvasScale = scale;
+	if(this.editable==false){
+		this.idle = false;
+		this.editable = false;
+		this.canvas2.selection = false;
+		this.canvas2.forEachObject(function(o) {
+			o.selectable = false;
+		});
+		this.canvas2.isDrawingMode = false;
+		this.canvas2.off('mouse:up');
+		this.canvas2.off('mouse:down');
+		this.canvas2.off('mouse:move');
+	}
+	if(this.canvasScale!=1)
+	{
+		disable();
+		this.canvas2.deactivateAllWithDispatch();
+		//this.disable();
+		
+		this.canvas2.setHeight(this.canvas2.getHeight() * this.canvasScale);
+		this.canvas2.setWidth(this.canvas2.getWidth() * this.canvasScale);
+		
+		var objects = this.canvas2.getObjects();
+		for (var i in objects) {
+			var scaleX = objects[i].scaleX;
+			var scaleY = objects[i].scaleY;
+			var left = objects[i].left;
+			var top = objects[i].top;
+			
+			var tempScaleX = scaleX * this.canvasScale;
+			var tempScaleY = scaleY * this.canvasScale;
+			var tempLeft = left * this.canvasScale;
+			var tempTop = top * this.canvasScale;
+			
+			objects[i].scaleX = tempScaleX;
+			objects[i].scaleY = tempScaleY;
+			objects[i].left = tempLeft;
+			objects[i].top = tempTop;
+			
+			objects[i].setCoords();
+		}
+	}
 	this.canvas2.renderAll();
 	this.canvas2.calcOffset();
 };
@@ -629,7 +732,7 @@ Whiteboard.prototype.initial = function(data) {
 	console.log(data.json);
 	
 	this.canvas2.loadFromJSON(data.json);
-
+	this.currentImage = data.json;
 	this.canvas2.renderAll();
 	this.canvas2.calcOffset();
 };
@@ -994,13 +1097,15 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
-		var json = JSON.stringify(this.canvas2.toJSON(['id']));
-		this.socket.send(JSON.stringify({
-			msg: 'save',
-			data: {
-				json: json
-			}
-		}));	
+		// var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		// this.socket.send(JSON.stringify({
+			// msg: 'save',
+			// data: {
+				// json: json
+			// }
+		// }));	
+		if(this.canvas2.selection==false)
+			square.selectable=false;
 	}
 	else if(data.type == 'line'){
 		console.log(data.x1, data.y1, data.x2, data.y2);
@@ -1023,13 +1128,15 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
         this.canvas2.calcOffset(); 
-		var json = JSON.stringify(this.canvas2.toJSON(['id']));
-		this.socket.send(JSON.stringify({
-			msg: 'save',
-			data: {
-				json: json
-			}
-		}));
+		// var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		// this.socket.send(JSON.stringify({
+			// msg: 'save',
+			// data: {
+				// json: json
+			// }
+		// }));
+		if(this.canvas2.selection==false)
+			line.selectable=false;
 	}
 	else if(data.type == 'circle'){
 		var square = new fabric.Circle({ 
@@ -1052,13 +1159,15 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
-		var json = JSON.stringify(this.canvas2.toJSON(['id']));
-		this.socket.send(JSON.stringify({
-			msg: 'save',
-			data: {
-				json: json
-			}
-		}));
+		// var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		// this.socket.send(JSON.stringify({
+			// msg: 'save',
+			// data: {
+				// json: json
+			// }
+		// }));
+		if(this.canvas2.selection==false)
+			square.selectable=false;
 	}
 	else if(data.type == 'ellipse'){
 		var square = new fabric.Ellipse({ 
@@ -1082,13 +1191,15 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
-		var json = JSON.stringify(this.canvas2.toJSON(['id']));
-		this.socket.send(JSON.stringify({
-			msg: 'save',
-			data: {
-				json: json
-			}
-		}));
+		// var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		// this.socket.send(JSON.stringify({
+			// msg: 'save',
+			// data: {
+				// json: json
+			// }
+		// }));
+		if(this.canvas2.selection==false)
+			square.selectable=false;
 	}
 	else if(data.type == 'path'){
 		var path = new fabric.Path('M 0 0 L 0 0', {
@@ -1112,13 +1223,15 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
-		var json = JSON.stringify(this.canvas2.toJSON(['id']));
-		this.socket.send(JSON.stringify({
-			msg: 'save',
-			data: {
-				json: json
-			}
-		}));
+		// var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		// this.socket.send(JSON.stringify({
+			// msg: 'save',
+			// data: {
+				// json: json
+			// }
+		// }));
+		if(this.canvas2.selection==false)
+			path.selectable=false;
 	}
 	else if(data.type == 'text'){
 		var text = new fabric.Text(data.text, {
@@ -1139,6 +1252,8 @@ Whiteboard.prototype.create= function(data) {
 		}
 		this.canvas2.renderAll();
 		this.canvas2.calcOffset(); 
+		if(this.canvas2.selection==false)
+			text.selectable=false;
 	}
 	else if(data.type == 'image'){
 		//console.log(data);
@@ -1155,13 +1270,13 @@ Whiteboard.prototype.create= function(data) {
 		
 		this.canvas2.add(image);
 		this.canvas2.sendToBack(image);
-		var json = JSON.stringify(this.canvas2.toJSON(['id']));
-		this.socket.send(JSON.stringify({
-			msg: 'save',
-			data: {
-				json: json
-			}
-		}));
+		// var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		// this.socket.send(JSON.stringify({
+			// msg: 'save',
+			// data: {
+				// json: json
+			// }
+		// }));
 		//console.log(image);
 	
 		var that = this;
@@ -1195,48 +1310,18 @@ Whiteboard.prototype.create= function(data) {
 				zoom(that, image);
 				image.selectable = false;
 			}
-			// var x = data.x,y = data.y;
-			// if(imgObj.width>that.canvas.width)
-				// if(imgObj.width/(that.canvas.width-x) > imgObj.height/(that.canvas.height-y))
-					// image.set({
-						// width: that.canvas.width-x,
-						// height: (that.canvas.width-x)*(imgObj.height/imgObj.width)	
-					// });
-				// else
-					// image.set({
-						// width: (that.canvas.height-y)*(imgObj.width/imgObj.height),
-						// height: that.canvas.height-y
-					// });	
-			// else if(imgObj.height>that.canvas.height)
-				// if(imgObj.width/(that.canvas.width-x) < imgObj.height/(that.canvas.height-y))
-					// image.set({
-						// width: (that.canvas.height-y)*(imgObj.width/imgObj.height),
-						// height: that.canvas.height-y
-					// });	
-				// else
-					// image.set({
-						// width: that.canvas.width-x,
-						// height: (that.canvas.width-x)*(imgObj.height/imgObj.width)
-					// });		
 			
-			// var center = image.getCenterPoint();
-			// image.set({
-				// originX: 'center',
-				// originY: 'center',
-				// left: center.x,
-				// top: center.y
-			// });
-			
-			//that.canvas2.add(image);
 			that.canvas2.renderAll();
 			that.canvas2.calcOffset(); 
-			var json = JSON.stringify(that.canvas2.toJSON(['id']));
-			that.socket.send(JSON.stringify({
-				msg: 'save',
-				data: {
-					json: json
-				}
-			}));
+			// var json = JSON.stringify(that.canvas2.toJSON(['id']));
+			// that.socket.send(JSON.stringify({
+				// msg: 'save',
+				// data: {
+					// json: json
+				// }
+			// }));
+			if(this.canvas2.selection==false)
+				image.selectable=false;
 		}
 	}
 };
@@ -1261,14 +1346,19 @@ Whiteboard.prototype.finish= function(data) {
 				objArray[j].selectable = false;
 			this.canvas2.renderAll();
 			this.canvas2.calcOffset();
-			//this.canvas2.deactivateAllWithDispatch();
-			var json = JSON.stringify(this.canvas2.toJSON(['id']));
-			this.socket.send(JSON.stringify({
-				msg: 'save',
-				data: {
-					json: json
-				}
-			}));
+			this.canvas2.deactivateAllWithDispatch();
+			// var json = JSON.stringify(this.canvas2.toJSON(['id']));
+			// this.socket.send(JSON.stringify({
+				// msg: 'save',
+				// data: {
+					// json: json
+				// }
+			// }));
+			// this.removedImages = [];
+			// this.savedImages.push(this.currentImage);
+			// this.currentImage = json;
+			if(this.canvas2.selection==false)
+				square.selectable=false;
 		}
 	}
 };
@@ -1356,6 +1446,25 @@ Whiteboard.prototype.text = function() {
 			}
 		}));
 
+		that.socket.send(JSON.stringify({
+			msg: 'unselected',
+			data: {
+				id: text.id,
+				user: that.username
+			}
+		}));
+		that.selectList[text.id]=[true, that.username];
+		
+		var json = JSON.stringify(that.canvas2.toJSON(['id']));
+		that.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
+		that.removedImages = [];
+		that.savedImages.push(that.currentImage);
+		that.currentImage = json;
 		// canvas2.add(square); 
 		// canvas2.renderAll();
 		// canvas2.calcOffset(); 
@@ -1432,7 +1541,7 @@ Whiteboard.prototype.latex = function() {
 			image.selectable = false;
 			
 			that.canvas2.add(image);
-			that.canvas2.sendToBack(image);
+			//that.canvas2.sendToBack(image);
 			that.canvas2.renderAll();
 			that.canvas2.calcOffset(); 
 			// end fabricJS stuff
@@ -1449,12 +1558,27 @@ Whiteboard.prototype.latex = function() {
 					height: image.height
 				}
 			}));
+			that.socket.send(JSON.stringify({
+				msg: 'unselected',
+				data: {
+					id: image.id,
+					user: that.username
+				}
+			}));
+			that.selectList[image.id]=[true, that.username];
+			
+			var json = JSON.stringify(that.canvas2.toJSON(['id']));
+			that.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
+			that.removedImages = [];
+			that.savedImages.push(that.currentImage);
+			that.currentImage = json;
 		}
-		
-
-
 	}
-
 }
 
 Whiteboard.prototype.image = function() {
@@ -1542,10 +1666,27 @@ Whiteboard.prototype.image = function() {
 					height: image.height
 				}
 			}));
+			
+			that.socket.send(JSON.stringify({
+				msg: 'unselected',
+				data: {
+					id: image.id,
+					user: that.username
+				}
+			}));
+			that.selectList[image.id]=[true, that.username];
+			
+			var json = JSON.stringify(that.canvas2.toJSON(['id']));
+			that.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
+			that.removedImages = [];
+			that.savedImages.push(that.currentImage);
+			that.currentImage = json;
 		}
-		
-
-
 	}
 
 }
@@ -1573,8 +1714,8 @@ Whiteboard.prototype.rect = function() {
 
 		if(that.style==1)
 			var square = new fabric.Rect({ 
-				width: 50, 
-				height: 50, 
+				width: 2, 
+				height: 2, 
 				left: x, 
 				top: y, 
 				fill: 'transparent',
@@ -1588,8 +1729,8 @@ Whiteboard.prototype.rect = function() {
 			});
 		else
 			var square = new fabric.Rect({ 
-				width: 50, 
-				height: 50, 
+				width: 2, 
+				height: 2, 
 				left: x, 
 				top: y, 
 				fill: 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')',
@@ -1691,7 +1832,18 @@ Whiteboard.prototype.rect = function() {
 				data: {
 					id: square.id
 				}
-			}));	
+			}));
+
+			var json = JSON.stringify(that.canvas2.toJSON(['id']));
+			that.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
+			that.removedImages = [];
+			that.savedImages.push(that.currentImage);
+			that.currentImage = json;			
 		}
 	} 
 }
@@ -1720,8 +1872,8 @@ Whiteboard.prototype.square = function() {
 
 		if(that.style==1)
 			var square = new fabric.Rect({ 
-				width: 50, 
-				height: 50, 
+				width: 2, 
+				height: 2, 
 				left: x, 
 				top: y, 
 				fill: 'transparent',
@@ -1735,8 +1887,8 @@ Whiteboard.prototype.square = function() {
 			});
 		else
 			var square = new fabric.Rect({ 
-				width: 50, 
-				height: 50, 
+				width: 2, 
+				height: 2, 
 				left: x, 
 				top: y, 
 				fill: 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')',
@@ -1843,6 +1995,17 @@ Whiteboard.prototype.square = function() {
 					id: square.id
 				}
 			}));	
+			
+			var json = JSON.stringify(that.canvas2.toJSON(['id']));
+			that.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
+			that.removedImages = [];
+			that.savedImages.push(that.currentImage);
+			that.currentImage = json;	
 		}
 	} 
 }
@@ -1880,7 +2043,7 @@ Whiteboard.prototype.circle = function() {
 		
 		if(that.style==1)
 			var circle = new fabric.Circle({ 
-				radius: 25, 
+				radius: 5, 
 				left: x, 
 				top: y, 
 				fill: 'transparent',
@@ -1894,7 +2057,7 @@ Whiteboard.prototype.circle = function() {
 			});
 		else
 			var circle = new fabric.Circle({ 
-				radius: 25, 
+				radius: 5, 
 				left: x, 
 				top: y, 
 				fill: 'rgb(' + that.color.r + "," + that.color.g + "," + that.color.b +')',
@@ -1999,6 +2162,17 @@ Whiteboard.prototype.circle = function() {
 					id: circle.id
 				}
 			}));	
+			
+			var json = JSON.stringify(that.canvas2.toJSON(['id']));
+			that.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
+			that.removedImages = [];
+			that.savedImages.push(that.currentImage);
+			that.currentImage = json;	
 		}
 	} 
 }
@@ -2160,7 +2334,18 @@ Whiteboard.prototype.ellipse = function() {
 				data: {
 					id: circle.id
 				}
-			}));	
+			}));
+
+			var json = JSON.stringify(that.canvas2.toJSON(['id']));
+			that.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
+			that.removedImages = [];
+			that.savedImages.push(that.currentImage);
+			that.currentImage = json;				
 		}
 	} 
 }
@@ -2314,6 +2499,16 @@ Whiteboard.prototype.line = function() {
 				}
 			}));	
 
+			var json = JSON.stringify(that.canvas2.toJSON(['id']));
+			that.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
+			that.removedImages = [];
+			that.savedImages.push(that.currentImage);
+			that.currentImage = json;	
 		}
 	} 
 }
@@ -2373,27 +2568,6 @@ Whiteboard.prototype.initCommands = function(commandList) {
 Whiteboard.prototype.sendClear = function() {
     this.socket.send(JSON.stringify({ msg: 'clear' }));
 	console.log("Clear!");
-};
-
-Whiteboard.prototype.sendUndo = function() {
-    this.socket.send(JSON.stringify({ msg: 'undo' }));
-	console.log("Undo!");
-};
-
-// Whiteboard.prototype.undo = function(data) {
-	// this.canvas.width = this.canvas.width;
-	// var imgObj = new Image();
-
-	// imgObj.addEventListener('load', function(){
-			// this.ctx.drawImage(imgObj, 0, 0,imgObj.width,imgObj.height);	
-	// }.bind(this));
-	// var saved = this.savedImages.pop();
-	// imgObj.src = saved;
-// }
-
-Whiteboard.prototype.sendRedo = function() {
-    this.socket.send(JSON.stringify({ msg: 'redo' }));
-	console.log("Redo!");
 };
 
 Whiteboard.prototype.setColor = function(r,g,b) {
@@ -2783,6 +2957,9 @@ Whiteboard.prototype.textBoxChanged2 = function(e) {
 					json: json
 				}
 			}));
+			this.removedImages = [];
+			this.savedImages.push(this.currentImage);
+			this.currentImage = json;
 		}
 		this.socket.send(JSON.stringify({
 			msg: 'editText',
@@ -2809,6 +2986,9 @@ Whiteboard.prototype.textFontChanged2 = function(e) {
 					json: json
 				}
 			}));
+			this.removedImages = [];
+			this.savedImages.push(this.currentImage);
+			this.currentImage = json;
 		}
 		this.socket.send(JSON.stringify({
 			msg: 'editFontFamily',
@@ -2835,6 +3015,9 @@ Whiteboard.prototype.fontWeightChanged2 = function(e) {
 					json: json
 				}
 			}));
+			this.removedImages = [];
+			this.savedImages.push(this.currentImage);
+			this.currentImage = json;
 		}
 		this.socket.send(JSON.stringify({
 			msg: 'editFontWeight',
@@ -2861,6 +3044,9 @@ Whiteboard.prototype.fontStyleChanged2 = function(e) {
 					json: json
 				}
 			}));
+			this.removedImages = [];
+			this.savedImages.push(this.currentImage);
+			this.currentImage = json;
 		}
 		this.socket.send(JSON.stringify({
 			msg: 'editFontStyle',
