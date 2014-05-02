@@ -1,0 +1,100 @@
+button:focus {outline:0;}
+
+#control{
+	font-size: 20;
+	height: 56px;
+}
+
+#control ul {
+  margin: 0;
+  font-size: 14px;
+  background: #E8E8E2 repeat-x 0 -110px; 
+  line-height: 100%;
+  width: 100%;
+  
+}
+
+#control li{
+	margin-left: 5px;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	float: left;
+}
+
+#control li a{
+	display: block;
+	padding: 2px;
+	margin: 0px;
+	border: solid;
+	border-color: #E8E8E2;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+#control button,
+#control input{
+	height: 39px;
+	width: 41px;
+	padding: 0;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+#control .hovering a{
+	background: #858585;
+	border: solid;
+	border-color: #858585;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+/*
+#control .active_menu a,
+#control .active_tool a{
+	background: #858585;
+	border: solid;
+	border-color: #858585;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+*/
+#control .active_menu button,
+#control .active_tool button{
+	background: #ADADAD;
+}
+
+#control .toolbar ul{
+	display:none;
+	z-index: 1;
+	position: absolute;
+	top: 56px;
+	left: 115px;
+	width: 55px;
+	margin: 0px;
+	padding: 0px;
+	background: #E8E8E2; 
+	line-height: 100%;
+	border-color: #858585;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+#control .toolbar li{
+	margin-top: 0px;
+	margin-left: 0px;
+}
+#control .toolbar li a{
+	display: block;
+	padding: 3px;
+	margin: 0px;
+	border: solid;
+	border-color: #E8E8E2;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
