@@ -15,50 +15,51 @@
 		</td>
 		<td width="40%">&nbsp;</td>
 		<td width="35%">
-			<%if (numberOfRoom != 0) { %>
-				<form action="/whiteboard" method="get">
-				Go to whiteboard room:
-					<input type="text" name="id">
-					<input type="submit" value="Submit">
-				</form>	
-			<%}%>
+			<form action="/whiteboard" method="get">
+			Go to whiteboard room:
+				<input type="text" name="id">
+				<input type="submit" value="Submit">
+			</form>	
 		</td>
 		</tr>
 	</table>
 	<br><br>
 	
 	<table cellspacing="0" cellpadding="0" width="100%" style='table-layout : fixed'>
-		<tr>
-			<td width="8%"></td>
-			<td width="10%"><strong>Room ID</strong></td>	
-			<td width="10%"><strong>Host</strong></td>	
-			<td width="30%"><strong>Create Date</strong></td>	
-			<td width="42%"><strong>User using the room</strong></td>
-		</tr>			
-	<%if (numberOfRoom != 0) { %>
-		<%for (var i=0; i<global.room.length; i++) {%>
+		<tbody id="roomInfoDisplay">
 			<tr>
-			<td>
-				<a href="/whiteboard?id=<%=global.room[i]%>" class="btn btn-default btn-sm">Enter</a>
-			</td>
-			<td>
-				<%=global.room[i]%>
-			</td>
-			<td>
-				 <a href="/user?user=<%=global.host[global.room[i]]%>"><%=global.host[global.room[i]]%></a>
-			</td>	
-			<td>
-				 <%=global.date[global.room[i]]%>
-			</td>	
-			<td>
-				 <%for (var j=0;j<global.roomInfo[global.room[i]].length;j++){%>
-					<%=global.roomInfo[global.room[i]][j]%>
-				 <%}%>
-			</td>
+				<td width="8%"></td>
+				<td width="10%"><strong>Room ID</strong></td>	
+				<td width="10%"><strong>Host</strong></td>	
+				<td width="30%"><strong>Create Date</strong></td>	
+				<td width="42%"><strong>User using the room</strong></td>
 			</tr>	
-		<% } %>
-	<% } %>
+		</tbody> 
 	</table>
 </div>
 </body>
 </html>
+
+<script>
+	var template = document.getElementById('roomInfoDisplay').innerHTML;
+	
+	$(document).ready(function() {	
+		displayRoom();
+		setInterval( displayRoom, 2000 );
+	});
+	
+	function displayRoom(){			
+		$.ajax({
+			url: 'roomInfo',
+			type: 'GET',
+			success: function (data) {
+				//var ret = jQuery.parseJSON(data);
+				console.log('Success: ', data);
+				document.getElementById('roomInfoDisplay').innerHTML = template + data;
+			},
+			error: function (xhr, status, error) {
+				console.log('Error: ' + error.message);
+			},
+		});
+	}
+</script>

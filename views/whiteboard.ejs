@@ -260,9 +260,6 @@
 			<input class="button" type="button" id="datasend" value="send" />
 		</div>
 
-	
-
-
 <!-- Pop Up Edit Text-->
 	  
 	<div id="texteditor2" class="popup draggable">
@@ -301,12 +298,14 @@
 				</select>
 			</li>
 			<li>
-				Text Size: 
+				Text Size: 				
 				<input class="slider" type="range" id="textSize2"
-				min="0"
+				min="1"
 				max="200"
 				step="1"
-				value="30">
+				value="30"
+				oninput="textSizeChanged2(this.value);"
+				onchange="textSizeChanged2(this.value); changeDone();">
 			</li>
 		</ul>
 	</div>
@@ -413,12 +412,13 @@
 		<b>Thickness:</b>
 	</div>
 	<div id="sizebar" style="float: left; margin-top: 12px; margin-left:10px;">
-		<input class="slider" type="range" id="textSize2"
+		<input class="slider" type="range" id="textSize3"
 		min="1"
 		max="20"
 		step="1"
 		value="1"
-		oninput="setWidth(this.value);">
+		oninput="setWidth(this.value);"
+		onchange="setWidth(this.value); changeDone();">
 	</div>
 </div>
 
@@ -637,29 +637,80 @@
 				client.canvas2.renderAll();
 				client.canvas2.calcOffset(); 	
 				client.sendClear();
-			}
-		}
-    }
-	
-	function restore() {
-		if(client.editable&&!zoomed){
-			if (confirm('Are you sure to restore from local status?')) {
-				var json = window.localStorage.getItem("hoge");
-				client.canvas2.loadFromJSON(json);
-				// re-render the canvas
-				client.idle=true;
-				setEdit(true);
-				client.canvas2.renderAll();
-				client.canvas2.calcOffset();
+				var json = JSON.stringify(client.canvas2.toJSON(['id']));
 				client.socket.send(JSON.stringify({
-					msg: 'restore',
+					msg: 'save',
 					data: {
 						json: json
 					}
 				}));
+				client.removedImages = [];
+				client.savedImages.push(client.currentImage);
+				client.currentImage = json;				
 			}
 		}
     }
+	
+	function changeDone(){
+		if(client.canvas2.getActiveObject()||client.canvas2.getActiveGroup()){
+			var json = JSON.stringify(client.canvas2.toJSON(['id']));
+			client.removedImages = [];
+			client.savedImages.push(client.currentImage);
+			client.currentImage = json;	
+		}
+	}
+	
+	function restore() {
+		if(client.editable&&!zoomed){
+			if (confirm('Are you sure to restore from local status?')) {
+				client.canvas2.isDrawingMode = false;
+				client.canvas2.off('mouse:up');
+				client.canvas2.off('mouse:down');
+				client.canvas2.off('mouse:move');
+				var json = window.localStorage.getItem("hoge");
+				loadCanvas(json);
+			}
+		}
+    }
+	
+	function loadCanvas(json){
+		client.currentImage = json;
+		client.canvas2.loadFromJSON(json);
+		// re-render the canvas
+		client.idle=true;
+		client.canvas2.selection = true;
+		client.canvas2.forEachObject(function(o) {
+			o.selectable = true;
+			client.selectList[o.id][0] = true;
+			client.selectList[o.id][1] = client.username;
+		});
+		
+		client.canvas2.renderAll();
+		client.canvas2.calcOffset();
+		client.socket.send(JSON.stringify({
+			msg: 'restore',
+			data: {
+				json: json
+			}
+		}));
+		client.canvas2.forEachObject(function(o) {
+			client.socket.send(JSON.stringify({
+				msg: 'unselected',
+				data: {
+					id: o.id,
+					user: client.username
+				}
+			}));
+			client.selectList[o.id]=[true, client.username];
+		});
+		client.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));		
+		select();
+	}
 			
 	function save() {
 		//var json = JSON.stringify(client.canvas2);
@@ -682,6 +733,16 @@
 						id: activeObject.id
 					}
 				}));
+				var json = JSON.stringify(client.canvas2.toJSON(['id']));
+				client.socket.send(JSON.stringify({
+					msg: 'save',
+					data: {
+						json: json
+					}
+				}));
+				client.removedImages = [];
+				client.savedImages.push(client.currentImage);
+				client.currentImage = json;	
 			}
 		}
     }
@@ -699,6 +760,16 @@
 						id: activeObject.id
 					}
 				}));
+				var json = JSON.stringify(client.canvas2.toJSON(['id']));
+				client.socket.send(JSON.stringify({
+					msg: 'save',
+					data: {
+						json: json
+					}
+				}));
+				client.removedImages = [];
+				client.savedImages.push(client.currentImage);
+				client.currentImage = json;	
 			}
 		}
     }
@@ -741,6 +812,14 @@
 				}));
 				copiedObjects[i].id= client.auth+(client.i++);
 				client.canvas2.add(copiedObjects[i]);
+				client.socket.send(JSON.stringify({
+					msg: 'unselected',
+					data: {
+						id: copiedObjects[i].id,
+						user: client.username
+					}
+				}));
+				client.selectList[copiedObjects[i].id]=[true, client.username];
 				var object = fabric.util.object.clone(copiedObjects[i]);
 				object.set("top", object.top+5);
 				object.set("left", object.left+5);
@@ -759,13 +838,31 @@
 			copiedObject.id= client.auth+(client.i++);
 			console.log(copiedObject.id);
 			client.canvas2.add(copiedObject);
+			client.socket.send(JSON.stringify({
+				msg: 'unselected',
+				data: {
+					id: copiedObject.id,
+					user: client.username
+				}
+			}));
+			client.selectList[copiedObject.id]=[true, client.username];
 			var object = fabric.util.object.clone(copiedObject);
 			object.set("top", object.top+5);
 			object.set("left", object.left+5);
 			copiedObject = object;
 		}
 		client.canvas2.renderAll(); 
-		client.canvas2.calcOffset();		
+		client.canvas2.calcOffset();	
+		var json = JSON.stringify(client.canvas2.toJSON(['id']));
+		client.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
+		client.removedImages = [];
+		client.savedImages.push(client.currentImage);
+		client.currentImage = json;			
 	}
 	
 	function backgroundColor() {
@@ -796,7 +893,14 @@
 			client.idle = true;
 			client.canvas2.selection = true;
 			client.canvas2.forEachObject(function(o) {
-				o.selectable = true;
+				if(client.selectList[o.id][1]==client.username){
+					o.selectable = true;
+					//console.log('yeah');
+				}
+				else{
+					o.selectable = client.selectList[o.id][0];
+					//console.log('oh...',o.selectable);
+				}
 			});
 			console.log("able to edit now");
 		}else{
@@ -930,51 +1034,10 @@
 		else if(source==2)
 			client.setStyle(2);
 	}
+
 	
 	function download() {
-//		var cs = new CanvasSaver('http://greenethumb.com/canvas/lib/saveme.php');
-//		cs.savePNG(document.getElementById('whiteboardCanvas'), 'image');
-//		var cs = new CanvasSaver('http://localhost:3389/saveme.php');
-/*		var container = document.getElementById('whiteboardCanvas').parentNode;
-		var temp = document.createElement('canvas');
-		temp.id     = 'temp';
-		temp.width  = 800;
-		temp.height = 600;
-		container.appendChild(temp);
-		var context = temp.getContext('2d');
-//		context.drawImage(document.getElementById('bottomCanvas'), 0, 0);
-		context.drawImage(document.getElementById('whiteboardCanvas'), 0, 0);
-		cs.savePNG(temp, 'image');*/
-		//temp.remove();
-		//container.removeChild(temp);
-		
-/*		client.canvas2.isDrawingMode = false;
-
-		var json = JSON.stringify(client.canvas2);
-
-		console.log(json);
-		// add the temporary canvas
-		tempCanvas = document.createElement('canvas');
-		tempCanvas.id = 'tmp_canvas';
-		//tempCanvas.width = 850;
-		//tempCanvas.height = 400;
-		var temp_canvas = new fabric.Canvas('tmp_canvas',{backgroundColor : "#fff"});
-		temp_canvas.setWidth(800);
-		temp_canvas.setHeight(600);
-		wrapperEl = document.createElement('div');
-		wrapperEl.className = 'CONTAINER_CLASS';
-		fabric.util.makeElementUnselectable(wrapperEl);
-		$('body').append(tempCanvas.wrapperEl);
-
-		var json = JSON.stringify(client.canvas2);
-		window.localStorage.setItem("download", json);	
-		
-		temp_canvas.loadFromJSON(window.localStorage.getItem("download"));
-		temp_canvas.renderAll();
-		temp_canvas.calcOffset();*/
-
 		var json = client.canvas2.toJSON(['id']);
-		//var json = JSON.stringify(client.canvas2);
 		console.log(json);
 		var base64 = client.canvas2.toDataURL("png");
 
@@ -983,10 +1046,6 @@
 			window.open(image.src);
 		}
 		image.src = base64;
-
-		// remove the temporary canvas
-		//$("#tmp_canvas").remove();
-		//client.download();
 	}
 
 	function CanvasSaver(url) {
@@ -1211,6 +1270,7 @@
 		if(client.canvasScale < 2.9)
 		 {
 			disable();
+			client.canvas2.deactivateAllWithDispatch();
 			//client.disable();
 			client.canvasScale = client.canvasScale * SCALE_FACTOR;
 			
@@ -1249,6 +1309,7 @@
 		{
 			//zoomed = true;
 			disable();
+			client.canvas2.deactivateAllWithDispatch();
 			client.canvasScale = client.canvasScale / SCALE_FACTOR;
 			
 			client.canvas2.setHeight(client.canvas2.getHeight() * (1 / SCALE_FACTOR));
@@ -1322,8 +1383,86 @@
 		client.canvas2.calcOffset();
 	});
 	
+	function textSizeChanged2(value) {
+		var activeObject = client.canvas2.getActiveObject();
+		if (activeObject) {
+			if(activeObject.type=='text'){
+				activeObject.fontSize = value;
+				activeObject.setCoords();
+				client.canvas2.renderAll();
+				client.canvas2.calcOffset();
+				var json = JSON.stringify(client.canvas2.toJSON(['id']));
+				client.socket.send(JSON.stringify({
+					msg: 'save',
+					data: {
+						json: json
+					}
+				}));
+			}
+			client.socket.send(JSON.stringify({
+				msg: 'editFontSize',
+				data: {
+					id: activeObject.id,
+					fontSize: activeObject.fontSize
+				}
+			}));	
+		}
+	};
+	
 	client.canvas2.renderAll();
 	client.canvas2.calcOffset();
+	
+	function undo(){
+		if(client.editable&&!zoomed&&client.savedImages.length!=0){
+			console.log('undo!');
+			client.canvas2.isDrawingMode = false;
+			client.canvas2.off('mouse:up');
+			client.canvas2.off('mouse:down');
+			client.canvas2.off('mouse:move');
+			client.removedImages.push(JSON.stringify(client.canvas2.toJSON(['id'])));
+			var saved = client.savedImages.pop();
+			loadCanvas(saved);
+			//.canvas2.loadFromJSON(saved);
+/*		connections.forEach(function(destination) {
+			destination.sendUTF(JSON.stringify({
+				msg: 'image',
+				data: {
+					imageBase64: saved,
+					points: [
+						0,
+						0
+					]
+				}
+			}));
+		});*/
+		}
+	}
+				
+	function redo(){
+		if(client.editable&&!zoomed&&client.removedImages.length!=0){
+			console.log('redo!');
+			client.canvas2.isDrawingMode = false;
+			client.canvas2.off('mouse:up');
+			client.canvas2.off('mouse:down');
+			client.canvas2.off('mouse:move');
+			client.savedImages.push(JSON.stringify(client.canvas2.toJSON(['id'])));
+			var saved = client.removedImages.pop();
+			loadCanvas(saved);
+			//client.canvas2.loadFromJSON(saved);
+	/*		connections.forEach(function(destination) {
+				connection.sendUTF(JSON.stringify({
+					msg: 'image',
+					data: {
+						imageBase64: saved,
+						points: [
+							0,
+							0
+						]
+					}
+				}));
+			});*/
+		}
+	}
 	
   </script>
   

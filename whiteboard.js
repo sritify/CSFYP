@@ -1,16 +1,4 @@
 #!/usr/bin/env node
-// server.js
-// Array.prototype.remove = function() {
-    // var what, a = arguments, L = a.length, ax;
-    // while (L && this.length) {
-        // what = a[--L];
-        // while ((ax = this.indexOf(what)) !== -1) {
-            // this.splice(ax, 1);
-        // }
-    // }
-    // return this;
-// };
-
 // set up ======================================================================
 // get all the tools we need
 var WebSocketServer = require('./lib/websocket').server;
@@ -60,79 +48,25 @@ var wsServer = new WebSocketServer({
     // connection on large fragmented messages
     fragmentOutgoingMessages: false
 });
-
-//console.log(wsServer);
-
-
-// var Canvas = require('./canvas')
-  // , Image = Canvas.Image
-  // , canvas = new Canvas(800, 450)
-  // , ctx = canvas.getContext('2d')
-  // , http = require('http')
-  // , parse = require('url').parse
-  // , fs = require('fs');
   
-var background = null;
-var currentimage = "";
-var savedImages = [];
-var removedImages = [];
-
-// console.log(savedImages);
-
-// ctx.fillRect(0,0,150,150);   // Draw a rectangle with default settings
-// ctx.save();                  // Save the default state
-
-// ctx.fillStyle = '#09F'       // Make changes to the settings
-// ctx.fillRect(15,15,120,120); // Draw a rectangle with new settings
-
-// ctx.save();                  // Save the current state
-// ctx.fillStyle = '#FFF'       // Make changes to the settings
-// ctx.globalAlpha = 0.5;    
-// ctx.fillRect(30,30,90,90);   // Draw a rectangle with new settings
-
-// ctx.restore();               // Restore previous state
-// ctx.fillRect(45,45,60,60);   // Draw a rectangle with restored settings
-
-// ctx.restore();               // Restore original state
-// ctx.fillRect(60,60,30,30); 
 global.host = new Array();
 global.connections = new Array();
-//var connections = [];
+global.editable = new Array();
+global.json = new Array();
+global.selection = new Array();
 global.canvasCommands = new Array();
-//var canvasCommands = [];
 global.chatHistory = new Array();
-//var chatHistory = [];
 global.numberOfRoom = 0;
 global.roomInfo = new Array();
 global.userRoom = new Array();
 global.room = new Array();
 global.date = new Array();
+
 var id = 0;
 
 wsServer.on('request', function(request) {
     var connection = request.accept('whiteboard', request.origin);
-    // console.log(request);
-	// console.log(request.protocol);
-	
     console.log(connection.remoteAddress + " connected - Protocol Version " + connection.websocketVersion);
-    
-    // //Send all the existing canvas commands to the new client
-    // connection.sendUTF(JSON.stringify({
-        // msg: "initCommands",
-        // data: canvasCommands
-    // }));
-	
-	// connection.sendUTF(JSON.stringify({
-        // msg: "initCommands",
-        // data: chatHistory
-    // }));
-	
-    // Handle closed connections
-	
-	// connection.on('update', function() {
-		// var command = JSON.parse(message.utf8Data);
-		// currentimage = command.data.imageBase64;
-    // });
     
     // Handle incoming messages
     connection.on('message', function(message) {
@@ -140,89 +74,32 @@ wsServer.on('request', function(request) {
 			//console.log(connections.indexOf(connection));
             try {
                 var command = JSON.parse(message.utf8Data);
-				//console.log(command);
-				
-				// if(command.msg === 'undo'){
-					// removedImages.push(canvas.toDataURL("image/png"));
-					// connections.forEach(function(destination) {
-						// destination.sendUTF(JSON.stringify({
-							// msg: 'clear',
-						// }));
-					// });
-					// var saved = savedImages.pop();
-					// connections.forEach(function(destination) {
-						// destination.sendUTF(JSON.stringify({
-							// msg: 'image',
-							// data: {
-								// imageBase64: saved,
-								// points: [
-									// 0,
-									// 0
-								// ]
-							// }
-						// }));
-					// });
-					// var img = new Image;
-					// img.src = saved;
-
-					// ctx.drawImage(img, 0,0);
-
-					// var out = fs.createWriteStream(__dirname + '/output.png')
-					  // , stream = canvas.createPNGStream();
-
-					// stream.on('data', function(chunk){
-					  // out.write(chunk);
-					// });	  
-					
-					// return;
-				// }
-				
-				// if(command.msg === 'redo'){
-					// //savedImages
-					// savedImages.push(canvas.toDataURL("image/png"));
-					// connections.forEach(function(destination) {
-						// destination.sendUTF(JSON.stringify({
-							// msg: 'clear',
-						// }));
-					// });
-					// var saved = removedImages.pop();
-					// connections.forEach(function(destination) {
-						// connection.sendUTF(JSON.stringify({
-							// msg: 'image',
-							// data: {
-								// imageBase64: saved,
-								// points: [
-									// 0,
-									// 0
-								// ]
-							// }
-						// }));
-					// });
-					// var img = new Image;
-					// img.src = saved;
-
-					// ctx.drawImage(img, 0,0);
-
-					// var out = fs.createWriteStream(__dirname + '/output.png')
-					  // , stream = canvas.createPNGStream();
-
-					// stream.on('data', function(chunk){
-					  // out.write(chunk);
-					// });	  
-					
-					// return;
-				// }
-				
-				
+				//console.log(command);	
 				//console.log(connections[0]);
 				//connections[0].sendUTF(message.utf8Data);
+				
+				if(command.msg === 'save'){
+					global.json[connection.room] = command.data.json;
+					global.canvasCommands[connection.room] = new Array();
+					return;  //return for save command, need not process and broadcast
+				}		
+				
 				if (command.msg === 'enterRoom'){
-					console.log(command.data);
+					//console.log(command.data);
 					connection.username = command.data.username;
 					connection.room = command.data.room;
 					global.connections[connection.room].push(connection);
 					// connection.id = id++;
 					// console.log(connection.id);
+					
+					connection.sendUTF(JSON.stringify({
+						msg: "initial",
+						data: {
+							json: global.json[connection.room]
+						}
+					}));
+	
+					//console.log(global.canvasCommands[connection.room]);
 					
 					//Send all the existing canvas commands to the new client
 					connection.sendUTF(JSON.stringify({
@@ -234,6 +111,24 @@ wsServer.on('request', function(request) {
 						msg: "initCommands",
 						data: global.chatHistory[connection.room]
 					}));
+					
+					//console.log(global.selection[connection.room]);
+					
+					connection.sendUTF(JSON.stringify({
+						msg: "selection",
+						data: {
+							json: global.selection[connection.room]
+						}
+					}));
+					
+					if(global.editable[connection.room] == false){
+						connection.sendUTF(JSON.stringify({
+							msg: 'disable',
+							data: {
+								host:  global.host[connection.room]
+							}
+						}));
+					}
 				}else{
 					if (command.msg !== 'conversation')
 						global.canvasCommands[connection.room].push(command);
@@ -241,65 +136,53 @@ wsServer.on('request', function(request) {
 						global.chatHistory[connection.room].push(command);				
 				}
 				
-				global.connections[connection.room].forEach(function(destination) {
-					
+				//boardcast the message
+				global.connections[connection.room].forEach(function(destination) {	
 					if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
 						destination.sendUTF(message.utf8Data);
-					//console.log(message.utf8Data);
-					
+					//console.log(message.utf8Data);				
 				});
 				
-				if (command.msg === 'clear') {
-					global.canvasCommands[connection.room] = [];
-					// clear();
+				//process the message if needed
+				if (command.msg === 'disable') {
+					global.editable[connection.room] = false;
+					return;
 				}
-				// else if(command.msg !== 'drawRect' && command.msg !== 'drawSquare' && command.msg !== 'drawOval' && command.msg !== 'drawCircle' && command.msg !== 'drawLine' && command.msg !== 'partErase'){
-				// canvasCommands.push(command);
-					// if(command.msg !== 'draw' && command.msg !=='erase' )
-						// savedImages.push(canvas.toDataURL("image/png"));
-						// // connections[0].sendUTF(JSON.stringify({
-							// // msg: 'update',
-						// // }));
-					// switch(command.msg){
-						// case 'draw':
-							// draw(command.data);
-							// break;
-						// case 'image':
-							// image(command.data);
-							// break;
-						// case 'drawRect2':
-							// drawRect2(command.data);
-							// break;
-						// case 'drawSquare2':
-							// drawSquare2(command.data);
-							// break;
-						// case 'drawOval2':
-							// drawOval2(command.data);
-							// break;
-						// case 'drawCircle2':
-							// drawCircle2(command.data);
-							// break;
-						// case 'drawLine2':
-							// drawLine2(command.data);
-							// break;
-						// case 'text':
-							// text(command.data);
-							// break;
-						// case 'erase':
-							// erase(command.data);
-							// break;	
-						// case 'partErase2':
-							// partErase2(command.data);
-							// break;		
-						// case 'bgColor':
-							// bgColor(command.data);
-							// break;
-					// }
-					// //console.log(savedImages);
-				// }
 				
-				//console.log(canvasCommands);
-				// rebroadcast command to all clients
+				if (command.msg === 'enable') {
+					global.editable[connection.room] = true;
+					return;
+				}
+				
+				if (command.msg === 'groupCreate') {
+					global.selection[connection.room][command.data.id] = [false, command.data.user];
+					connection.groupid = command.data.id;
+					connection.groupArray = command.data.array;
+					//var array = command.data.array;
+					// for(var i=0;i<array.length;i++)
+						// global.selection[connection.room][array[i]] = [false, command.data.user];
+					//console.log(global.selection[connection.room]);
+					return;
+				}
+				
+				if (command.msg === 'groupCancel') {
+					global.selection[connection.room][command.data.id] = [true, command.data.user];
+					connection.groupid = '';
+					//console.log(global.selection[connection.room]);
+					return;
+				}
+				
+				if (command.msg === 'selected') {
+					global.selection[connection.room][command.data.id] = [false, command.data.user];
+					//console.log(global.selection[connection.room]);
+					return;
+				}
+				
+				if (command.msg === 'unselected') {
+					global.selection[connection.room][command.data.id] = [true, command.data.user];
+					//console.log(global.selection[connection.room]);
+					return;
+				}
 			}
 			catch(e) {
 				console.log(e);
@@ -309,16 +192,73 @@ wsServer.on('request', function(request) {
     });
 	
 	connection.on('close', function() {
-        console.log(connection.remoteAddress + " disconnected");
-        console.log(connection.username);
-		console.log(global.roomInfo[connection.room]);
-		//global.roomInfo[connection.room].remove();
-        var index = global.roomInfo[connection.room].indexOf(connection.username);
+		var index = global.roomInfo[connection.room].indexOf(connection.username);
         if (index !== -1) {
             // remove the connection from the pool
             global.roomInfo[connection.room].splice(index, 1);
         }
-		console.log(global.roomInfo[connection.room]);
+        //console.log(connection.remoteAddress + " disconnected");
+        //console.log(connection.username);
+		//console.log(global.roomInfo[connection.room]);
+        //set server list, send unselect to all client
+		//cancel group....
+		if(connection.groupid != ''){
+			global.canvasCommands[connection.room].push({
+				msg: 'groupCancel',
+				data: {
+					id: connection.groupid,
+					array: [],
+					user: connection.username
+				}
+			});
+			
+			console.log(global.canvasCommands[connection.room]);
+		
+			global.selection[connection.room][connection.groupid][0] = true;
+			global.connections[connection.room].forEach(function(destination) {	
+				if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
+					destination.sendUTF(JSON.stringify({
+						msg: 'groupCancel',
+						data: {
+							id: connection.groupid,
+							array: [],
+							user: connection.username
+						}
+					}));
+			
+				for(var i=0;i<connection.groupArray.length;i++){
+					global.selection[connection.room][connection.groupArray[i]][0] = true;
+					if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
+						destination.sendUTF(JSON.stringify({
+							msg: 'unselected',
+							data: {
+								id: connection.groupArray[i],
+								user: connection.username
+							}	
+						}));					
+				}
+			});
+		}
+		
+		for(var id in global.selection[connection.room]){
+			if(global.selection[connection.room][id][1]==connection.username){
+				if(global.selection[connection.room][id][0] == false){
+					global.selection[connection.room][id][0] = true;
+					global.connections[connection.room].forEach(function(destination) {	
+						if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
+							destination.sendUTF(JSON.stringify({
+								msg: 'unselected',
+								data: {
+									id: id,
+									user: connection.username
+								}	
+							}));			
+					});
+				}
+			}
+		}
+
+		//console.log(global.roomInfo[connection.room]);
         index = global.connections[connection.room].indexOf(connection);
         if (index !== -1) {
             // remove the connection from the pool

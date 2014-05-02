@@ -75,6 +75,26 @@ module.exports = function(app, passport) {
 		});
 	});
 	
+	app.get('/roomInfo', function(req, res) {
+		//res.writeHead(200, {"Content-Type": "text/json"});
+		var json = "";
+		if (global.numberOfRoom != 0) {
+			for (var i=0; i<global.room.length; i++) {
+				json = json + "<tr>";
+				json = json + "<td><a href='/whiteboard?id="+global.room[i]+"' class='btn btn-default btn-sm'>Enter</a></td>";
+				json = json + "<td>"+global.room[i]+"</td>";
+				json = json + "<td>"+"<a href='/user?user="+global.host[global.room[i]]+"'>"+global.host[global.room[i]]+"</a></td>";
+				json = json + "<td>"+global.date[global.room[i]]+"</td>";	
+				json = json + "<td>";
+				for (var j=0;j<global.roomInfo[global.room[i]].length;j++){
+					json = json + global.roomInfo[global.room[i]][j] + " ";
+				}
+				json = json + "</td></tr>";
+			}
+		}	
+		res.send(json);
+	});
+	
 	app.get('/user', isLoggedIn, function(req, res) {
 		// console.log(req.query);
 		// console.log(global);
@@ -98,15 +118,20 @@ module.exports = function(app, passport) {
 		console.log(req.user.local.username);
 		var id = req.query.id;
 		if((id in global.roomInfo)){
+			// if(global.roomInfo[id].indexOf(req.user.local.username)==-1){
 			global.roomInfo[id].push(req.user.local.username);		
 			res.render('whiteboard.ejs', {
 				user : req.user, // get the user out of session and pass to template
 				room : id,
 				host : global.host[id]
 			});
+			// }	
+			// else{
+				// res.redirect('/home?error=1');
+			// }
 		}
 		else{
-			res.redirect('/home');
+			res.redirect('/home?error=2');
 		}
 	});
 	
@@ -121,6 +146,8 @@ module.exports = function(app, passport) {
 		global.numberOfRoom++;
 		global.host[id]=req.user.local.username;
 		global.date[id]=new Date();
+		global.editable[id]=true;
+		global.selection[id] = {};
 		global.connections[id] = new Array();
 		global.canvasCommands[id] = new Array();
 		global.chatHistory[id] = new Array();
