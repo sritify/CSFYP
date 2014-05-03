@@ -64,6 +64,7 @@ function Whiteboard(canvasId) {
 		bgColor: this.bgColor.bind(this),
         clear: this.clear.bind(this),
 		bgClear: this.bgClear.bind(this),
+		setUrl: this.setUrl.bind(this),
 		image: this.image.bind(this),
 		type: this.type.bind(this),
 		rotate: this.rotate.bind(this),
@@ -315,8 +316,16 @@ Whiteboard.prototype.onObjectAdded = function(e) {
 			}
 		}));
 		this.selectList[e.target.id]=[true, this.username];
-		//console.log(e.target);
-		//this.temp = e.target;
+		var json = JSON.stringify(this.canvas2.toJSON(['id']));
+		this.socket.send(JSON.stringify({
+			msg: 'save',
+			data: {
+				json: json
+			}
+		}));
+		this.removedImages = [];
+		this.savedImages.push(this.currentImage);
+		this.currentImage = json;
 	}
 }
 
@@ -465,21 +474,27 @@ Whiteboard.prototype.selection = function(data) {
 }
 
 Whiteboard.prototype.copy = function(data) {
-	//console.log();
-	console.log(data.newid);
-	var objArray = this.canvas2.getObjects();
-	for (var j = 0 ; j < objArray.length; j++) {
-		if(objArray[j].id ==data.oldid){               //gets the object with id ='img1' 
-			var object = fabric.util.object.clone(objArray[j]);
-			object.set("top", object.top+ 5*this.canvasScale);
-			object.set("left", object.left+ 5*this.canvasScale);
-			object.id = data.newid;
-			this.canvas2.add(object);		
-			this.canvas2.renderAll(); 
-			this.canvas2.calcOffset();
-			break;
-		}
-	}
+	console.log(data);
+	var object = data.object;
+	object.id = data.id;
+	this.canvas2.add(fabric.util.getKlass(object.type).fromObject(object));
+	this.canvas2.renderAll();
+	this.canvas2.calcOffset();
+	
+	// console.log(data.newid);
+	// var objArray = this.canvas2.getObjects();
+	// for (var j = 0 ; j < objArray.length; j++) {
+		// if(objArray[j].id ==data.oldid){               //gets the object with id ='img1' 
+			// var object = fabric.util.object.clone(objArray[j]);
+			// object.set("top", object.top+ 5*this.canvasScale);
+			// object.set("left", object.left+ 5*this.canvasScale);
+			// object.id = data.newid;
+			// this.canvas2.add(object);		
+			// this.canvas2.renderAll(); 
+			// this.canvas2.calcOffset();
+			// break;
+		// }
+	// }
 	// var object = fabric.util.object.clone(data.obj);
 	// object.id = data.newid;	
 	// this.canvas2.add(object);
@@ -1265,11 +1280,13 @@ Whiteboard.prototype.create= function(data) {
 			top: data.y,
 			width: data.width,
 			height: data.height,
+			scaleX: data.scaleX,
+			scaleY: data.scaleY,
 			id: data.id
 		});
 		
 		this.canvas2.add(image);
-		this.canvas2.sendToBack(image);
+		//this.canvas2.sendToBack(image);
 		// var json = JSON.stringify(this.canvas2.toJSON(['id']));
 		// this.socket.send(JSON.stringify({
 			// msg: 'save',
@@ -1320,7 +1337,7 @@ Whiteboard.prototype.create= function(data) {
 					// json: json
 				// }
 			// }));
-			if(this.canvas2.selection==false)
+			if(that.canvas2.selection==false)
 				image.selectable=false;
 		}
 	}
@@ -1649,7 +1666,7 @@ Whiteboard.prototype.image = function() {
 			image.selectable = false;
 			
 			that.canvas2.add(image);
-			that.canvas2.sendToBack(image);
+			//that.canvas2.sendToBack(image);
 			that.canvas2.renderAll();
 			that.canvas2.calcOffset(); 
 			// end fabricJS stuff
@@ -2676,6 +2693,14 @@ Whiteboard.prototype.setWidth = function(width) {
 	}
 	this.canvas2.renderAll();
 	this.canvas2.calcOffset();
+};
+
+Whiteboard.prototype.setUrl = function(data) {
+	$('#urlMessage').html('Loaded!');	
+	urlImage = data.base64;
+	if(getRadioValue()==2)
+		this.setImage(urlImage);
+	//console.log(data);
 };
 
 Whiteboard.prototype.setImage = function(imageBase64) {

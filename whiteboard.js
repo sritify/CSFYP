@@ -41,6 +41,25 @@ require('./app/routes.js')(app, passport); // load our routes and pass in our ap
 // launch ======================================================================
 app.listen(port);
 
+var loadBase64Image = function (url, callback) {
+    // Required 'request' module
+    var request = require('request');
+
+    // Make request to our image url
+    request({url: url, encoding: null}, function (err, res, body) {
+        if (!err && res.statusCode == 200) {
+            // So as encoding set to null then request body became Buffer object
+            var base64prefix = 'data:' + res.headers['content-type'] + ';base64,'
+                , image = body.toString('base64');
+            if (typeof callback == 'function') {
+                callback(image, base64prefix);
+            }
+        } else {
+            console.log('Can not download image');
+        }
+    });
+};
+
 var wsServer = new WebSocketServer({
     httpServer: app, //create websocket server    
 	
@@ -83,6 +102,19 @@ wsServer.on('request', function(request) {
 					global.canvasCommands[connection.room] = new Array();
 					return;  //return for save command, need not process and broadcast
 				}		
+				
+				if(command.msg === 'url'){
+					loadBase64Image(command.data.url, function (image, prefix) {
+						//console.log(prefix,image);
+						var base64 = prefix+image;
+						connection.sendUTF(JSON.stringify({
+							msg: "setUrl",
+							data: {
+								base64: base64
+							}
+						}));
+					});
+				}
 				
 				if (command.msg === 'enterRoom'){
 					//console.log(command.data);

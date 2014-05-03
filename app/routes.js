@@ -148,6 +148,10 @@ module.exports = function(app, passport) {
 		global.date[id]=new Date();
 		global.editable[id]=true;
 		global.selection[id] = {};
+		global.json[id] =JSON.stringify({
+			objects:[],
+			background: "white"
+		});
 		global.connections[id] = new Array();
 		global.canvasCommands[id] = new Array();
 		global.chatHistory[id] = new Array();

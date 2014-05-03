@@ -120,7 +120,7 @@
 				</button></a>
 			</li>	
 			<li class='control_menu'><a>
-				<button onclick="setFunc('remove')">
+				<button onclick="removeObject();">
 					<img src="/image/eraser.png" alt="Remove Object" title="Remove Object" height="30" width="35">
 				</button></a>
 			</li>
@@ -371,8 +371,12 @@
 					<input id="inputFileToLoad" type="file" accept="image/png, image/gif, image/jpeg" onchange="loadImageFileAsURL();" />
 				</li>
 				<li>
-					<input type="radio" name="imagesource" value="2" onClick="setImage(2);"> <b>Image URL:</b> 
-					<input id="inputURLToLoad" placeholder="" onKeyUp="setURL(this.value);"/>
+					<label>
+					<input type="radio" name="imagesource" value="2" onClick="setImage(2);"> 
+					<b>Image URL:</b> 
+					<input id="inputURLToLoad" placeholder="" onKeyUp="setURL(this.value);"/> 
+					<span id="urlMessage"></span>
+					</label>
 				</li>
 			</ul>
 	</div>  
@@ -600,7 +604,7 @@
 									image.selectable = false;
 								
 								that.canvas2.add(image);
-								that.canvas2.sendToBack(image);
+								//that.canvas2.sendToBack(image);
 								that.canvas2.renderAll();
 								that.canvas2.calcOffset(); 
 								// end fabricJS stuff
@@ -801,68 +805,132 @@
 	}
 	
 	function paste(){
-		if(copiedObjects.length > 0){
-			for(var i in copiedObjects){
+		if(client.editable&&!zoomed){
+			var activeGroup = client.canvas2.getActiveGroup();
+			if(activeGroup){
+				var array = new Array();
+				var objArray = client.canvas2.getObjects();
+				for (var j = 0 ; j < objArray.length; j++) {
+					array[j]=objArray[j].id;
+				}
 				client.socket.send(JSON.stringify({
-					msg: 'copy',
+					msg: 'groupCancel',
 					data: {
-						oldid: copiedObjects[i].id,
-						newid: (client.auth+(client.i))
-					}
-				}));
-				copiedObjects[i].id= client.auth+(client.i++);
-				client.canvas2.add(copiedObjects[i]);
-				client.socket.send(JSON.stringify({
-					msg: 'unselected',
-					data: {
-						id: copiedObjects[i].id,
+						id: activeGroup.id,
+						array: array,
 						user: client.username
 					}
 				}));
-				client.selectList[copiedObjects[i].id]=[true, client.username];
-				var object = fabric.util.object.clone(copiedObjects[i]);
+				client.selectList[activeGroup.id]=[false, client.username];		
+				for(var i =0;i< activeGroup._objects.length;i++){
+					client.socket.send(JSON.stringify({
+						msg: 'unselected',
+						data: {
+							id: activeGroup._objects[i].id,
+							user: client.username
+						}
+					}));
+				}
+				client.canvas2.discardActiveGroup();
+			}
+			if(copiedObjects.length > 0){
+				select();
+				for(var i in copiedObjects){
+					if(copiedObjects[i].type == 'image'){
+						client.socket.send(JSON.stringify({
+							msg: 'create',
+							data: {
+								type: 'image',
+								id: (client.auth+(client.i)),
+								x: copiedObjects[i].left,
+								y: copiedObjects[i].top,
+								src: copiedObjects[i].getSrc(),
+								width: copiedObjects[i].width,
+								height: copiedObjects[i].height,
+								scaleX:	copiedObjects[i].scaleX,
+								scaleY: copiedObjects[i].scaleY
+							}
+						}));
+					}else{
+						client.socket.send(JSON.stringify({
+							msg: 'copy',
+							data: {
+								object: copiedObjects[i],
+								id: (client.auth+(client.i))
+							}
+						}));
+					}
+					copiedObjects[i].id= client.auth+(client.i++);
+					client.canvas2.add(copiedObjects[i]);
+					client.socket.send(JSON.stringify({
+						msg: 'unselected',
+						data: {
+							id: copiedObjects[i].id,
+							user: client.username
+						}
+					}));
+					client.selectList[copiedObjects[i].id]=[true, client.username];
+					var object = fabric.util.object.clone(copiedObjects[i]);
+					object.set("top", object.top+5);
+					object.set("left", object.left+5);
+					copiedObjects[i] = object;
+				}                    
+			}
+			else if(copiedObject){
+				select();
+				if(copiedObject.type == 'image'){
+					client.socket.send(JSON.stringify({
+						msg: 'create',
+						data: {
+							type: 'image',
+							id: (client.auth+(client.i)),
+							x: copiedObject.left,
+							y: copiedObject.top,
+							src: copiedObject.getSrc(),
+							width: copiedObject.width,
+							height: copiedObject.height,
+							scaleX:	copiedObject.scaleX,
+							scaleY: copiedObject.scaleY
+						}
+					}));
+				}else{
+					client.socket.send(JSON.stringify({
+						msg: 'copy',
+						data: {
+							object: copiedObject,
+							id: (client.auth+(client.i))
+						}
+					}));
+				}
+				copiedObject.id= client.auth+(client.i++);
+				console.log(copiedObject.id);
+				client.canvas2.add(copiedObject);
+				client.socket.send(JSON.stringify({
+					msg: 'unselected',
+					data: {
+						id: copiedObject.id,
+						user: client.username
+					}
+				}));
+				client.selectList[copiedObject.id]=[true, client.username];
+				var object = fabric.util.object.clone(copiedObject);
 				object.set("top", object.top+5);
 				object.set("left", object.left+5);
-				copiedObjects[i] = object;
-			}                    
-		}
-		else if(copiedObject){
-			console.log(copiedObject.id);
-			client.socket.send(JSON.stringify({
-				msg: 'copy',
-				data: {
-					oldid: copiedObject.id,
-					newid: (client.auth+(client.i))
-				}
-			}));
-			copiedObject.id= client.auth+(client.i++);
-			console.log(copiedObject.id);
-			client.canvas2.add(copiedObject);
-			client.socket.send(JSON.stringify({
-				msg: 'unselected',
-				data: {
-					id: copiedObject.id,
-					user: client.username
-				}
-			}));
-			client.selectList[copiedObject.id]=[true, client.username];
-			var object = fabric.util.object.clone(copiedObject);
-			object.set("top", object.top+5);
-			object.set("left", object.left+5);
-			copiedObject = object;
-		}
-		client.canvas2.renderAll(); 
-		client.canvas2.calcOffset();	
-		var json = JSON.stringify(client.canvas2.toJSON(['id']));
-		client.socket.send(JSON.stringify({
-			msg: 'save',
-			data: {
-				json: json
+				copiedObject = object;
 			}
-		}));
-		client.removedImages = [];
-		client.savedImages.push(client.currentImage);
-		client.currentImage = json;			
+			client.canvas2.renderAll(); 
+			client.canvas2.calcOffset();	
+			var json = JSON.stringify(client.canvas2.toJSON(['id']));
+			client.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
+			client.removedImages = [];
+			client.savedImages.push(client.currentImage);
+			client.currentImage = json;			
+		}
 	}
 	
 	function backgroundColor() {
@@ -877,6 +945,16 @@
 					color: client.color
 				}
 			}));
+			var json = JSON.stringify(client.canvas2.toJSON(['id']));
+			client.socket.send(JSON.stringify({
+				msg: 'save',
+				data: {
+					json: json
+				}
+			}));
+			client.removedImages = [];
+			client.savedImages.push(client.currentImage);
+			client.currentImage = json;	
 		}
     }
     
@@ -922,15 +1000,11 @@
 		}
     }
 	
-	function remove() {	
+	function removeObject() {	
 		if(client.editable&&!zoomed){
-			client.canvas2.isDrawingMode = false;
-			client.canvas2.off('mouse:up');
-			client.canvas2.off('mouse:down');
-			client.canvas2.off('mouse:move');
-			setEdit(true);
 			var activeObject = client.canvas2.getActiveObject(),
 			activeGroup = client.canvas2.getActiveGroup();
+			console.log(activeObject,activeGroup);
 			if (activeObject) {
 				if (confirm('Are you sure?')) {
 					client.socket.send(JSON.stringify({
@@ -940,23 +1014,52 @@
 						}
 					}));	
 					client.canvas2.remove(activeObject);
+					var json = JSON.stringify(client.canvas2.toJSON(['id']));
+					client.socket.send(JSON.stringify({
+						msg: 'save',
+						data: {
+							json: json
+						}
+					}));
+					client.removedImages = [];
+					client.savedImages.push(client.currentImage);
+					client.currentImage = json;		
 				}
 			}
 			else if (activeGroup) {
+				console.log('group removing..', activeGroup.id);
 				if (confirm('Are you sure?')) {
+					console.log('group removing..', activeGroup.id);
+					client.socket.send(JSON.stringify({
+						msg: 'remove',
+						data: {
+							id: activeGroup.id
+						}
+					}));	
 					var objectsInGroup = activeGroup.getObjects();
 					client.canvas2.discardActiveGroup();
 					objectsInGroup.forEach(function(object) {
-						client.socket.send(JSON.stringify({
-							msg: 'remove',
-							data: {
-								id: object.id
-							}
-						}));
 						client.canvas2.remove(object);
 					});
+					var json = JSON.stringify(client.canvas2.toJSON(['id']));
+					client.socket.send(JSON.stringify({
+						msg: 'save',
+						data: {
+							json: json
+						}
+					}));
+					client.removedImages = [];
+					client.savedImages.push(client.currentImage);
+					client.currentImage = json;		
 				}
 			}
+			client.canvas2.isDrawingMode = false;
+			client.canvas2.off('mouse:up');
+			client.canvas2.off('mouse:down');
+			client.canvas2.off('mouse:move');
+			setEdit(true);
+			client.canvas2.renderAll();
+			client.canvas2.calcOffset(); 
 		}
 	}
 	
@@ -985,38 +1088,6 @@
 				client.image();
 			if(command=='latex')
 				client.latex();
-			if(command=='remove'){
-				client.canvas2.isDrawingMode = false;
-				setEdit(true);
-				var activeObject = client.canvas2.getActiveObject(),
-				activeGroup = client.canvas2.getActiveGroup();
-				if (activeObject) {
-					if (confirm('Are you sure?')) {
-						client.socket.send(JSON.stringify({
-							msg: 'remove',
-							data: {
-								id: activeObject.id
-							}
-						}));	
-						client.canvas2.remove(activeObject);
-					}
-				}
-				else if (activeGroup) {
-					if (confirm('Are you sure?')) {
-						var objectsInGroup = activeGroup.getObjects();
-						client.canvas2.discardActiveGroup();
-						objectsInGroup.forEach(function(object) {
-							client.socket.send(JSON.stringify({
-								msg: 'remove',
-								data: {
-									id: object.id
-								}
-							}));
-							client.canvas2.remove(object);
-						});
-					}
-				}
-			}
 			client.setFunc(command);
 		}
     }
@@ -1035,14 +1106,15 @@
 			client.setStyle(2);
 	}
 
-	
 	function download() {
-		var json = client.canvas2.toJSON(['id']);
-		console.log(json);
+		//var json = client.canvas2.toJSON(['id']);
+		//console.log(json);
 		var base64 = client.canvas2.toDataURL("png");
 
 		var image = new Image();
 		image.onload = function() {
+			//var url = image.src.replace(/^data:image\/[^;]/, 'data:application/octet-stream');
+			//location.href = url;
 			window.open(image.src);
 		}
 		image.src = base64;
@@ -1123,27 +1195,28 @@
 	}
 	
     function setURL(str) {
-        urlImage = str;
-
+		/*$('#urlMessage').html('Loading...');	
+		client.socket.send(JSON.stringify({
+			msg: 'url',
+			data: {
+				url: str
+			}
+		}));*/
 		var img = new Image();
-		var imagecanvas = document.createElement("canvas");
-		var ctx = imagecanvas.getContext("2d");
-		//src = "http://example.com/image"; // insert image url here
-
 		img.crossorigin = "anonymous";
 
 		img.onload = function() {
-			imagecanvas.width = img.width;
-			imagecanvas.height = img.height;
-//			ctx.drawImage( img, 0, 0 );
-//			urlImage = imagecanvas.toDataURL();
-			console.log(img);
-			if(getRadioValue()==2)
-				client.setImage(urlImage);
+			$('#urlMessage').html('Loading...');	
+			client.socket.send(JSON.stringify({
+				msg: 'url',
+				data: {
+					url: str
+				}
+			}));
 		}
 
 		img.src = str;
-		// make sure the load event fires for cached images too		
+		// make sure the load event fires for cached images too		*/
     }
 	
 	var SCALE_FACTOR = 1.2;
