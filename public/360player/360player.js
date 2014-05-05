@@ -1020,13 +1020,15 @@ function ThreeSixtyPlayer() {
 
   };
 
-  this.init = function() {
+  this.init = function(id) {
 
     sm._writeDebug('threeSixtyPlayer.init()');
 
-    var oItems = self.getElementsByClassName('ui360','div'),
+    var oItems = new Array,
         i, j, oLinks = [], is_vis = false, foundItems = 0, canvasElements, oCanvas, oCanvasCTX, oCover, diameter, radius, uiData, uiDataVis, oUI, oBtn, o, o2, oID;
-
+	console.log(id);
+	console.log(document.getElementById(id));
+	oItems.push(document.getElementById(id));
     for (i=0,j=oItems.length; i<j; i++) {
       oLinks.push(oItems[i].getElementsByTagName('a')[0]);
       // remove "fake" play button (unsupported case)

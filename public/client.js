@@ -452,9 +452,17 @@ Whiteboard.prototype.onObjectModified = function(e){
 
 Whiteboard.prototype.conversation = function(data) {
 	console.log(data);
-	$('#conversation').append('<b>'+data.username + ':</b> ' + data.message + '<br>');
-	var objDiv = document.getElementById("conversation");
-	objDiv.scrollTop = objDiv.scrollHeight;	
+	if(data.type=='text'){
+		$('#conversation').append('<b>'+data.username + ':</b> ' + data.message + '<br>');
+		var objDiv = document.getElementById("conversation");
+		objDiv.scrollTop = objDiv.scrollHeight;	
+	}else{
+		var random = Math.random()*0xffffffff+"";
+		$('#conversation').append('<b>'+data.username + '(Audio):</b> <div class="ui360" id ="'+random+'"><a href="'+data.message +'"></a></div>');	
+		threeSixtyPlayer.init(random);
+		var objDiv = document.getElementById("conversation");
+		objDiv.scrollTop = objDiv.scrollHeight;		
+	}
 };
 
 Whiteboard.prototype.enterRoom = function(data) {

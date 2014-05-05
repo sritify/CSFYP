@@ -20,7 +20,20 @@
 	<script src="/fabric.js" type="text/javascript" charset="utf-8"></script>
 	<script src="/client.js" type="text/javascript" charset="utf-8"></script>  
 	<script src="/RecordRTC.js" type="text/javascript" charset="utf-8"> </script>
+	
+	<!-- special IE-only canvas fix -->
+	<!--[if IE]>
+		<script type="text/javascript" src="/360player/excanvas.js"></script>
+	<![endif]-->
 
+	<!-- Apache-licensed animation library -->
+	<script type="text/javascript" src="/360player/berniecode-animator.js"></script>
+
+	<!-- the core stuff -->
+	<script type="text/javascript" src="/360player/soundmanager2.js"></script>
+	<script type="text/javascript" src="/360player/360player.js"></script>
+
+	<link href="/360player/360player.css" rel="stylesheet" type="text/css"  />
 	<link href="/menu.css" rel="stylesheet" type="text/css">
 	<link href="/control.css" rel="stylesheet" type="text/css">
 	<link href="/layout.css" rel="stylesheet" type="text/css">
@@ -518,6 +531,7 @@
 			msg: 'conversation',
 			data: {
 				username: client.username,
+				type: 'text',
 				message: message,
 				date: new Date()
 			}
@@ -1571,6 +1585,11 @@
 		}
 	}
 	
+	soundManager.setup({
+	  // path to directory containing SM2 SWF
+	  url: './360player/swf/'
+	});
+
    function getByID(id) {
 		return document.getElementById(id);
 	}
@@ -1627,6 +1646,24 @@
 			if (recorder)
 				recorder.stopRecording(function(url) {
 					console.log(url);
+					recorder.getDataURL(function(dataURL){
+						client.socket.send(JSON.stringify({
+							msg: 'conversation',
+							data: {
+								username: client.username,
+								type: 'audio',
+								message: dataURL,
+								date: new Date()
+							}
+						}));
+						var message = dataURL;
+						//<div class="sm2-360ui"><canvas class="sm2-canvas" width="50" height="50"></canvas> <span class="sm2-360btn sm2-360btn-default"></span> <div class="sm2-timing alignTweak">0</div> <div class="sm2-cover"></div></div>
+						var random = Math.random()*0xffffffff+"";
+						$('#conversation').append('<b>'+client.username + '(Audio):</b> <div class="ui360" id ="'+random+'"><a href="'+ message +'"></a></div>');	
+						threeSixtyPlayer.init(random);
+						var objDiv = document.getElementById("conversation");
+						objDiv.scrollTop = objDiv.scrollHeight;		
+					});
 				});
 		}
 	};
