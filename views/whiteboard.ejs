@@ -17,8 +17,9 @@
     <script type="text/javascript" src="colorpicker/js/layout.js?ver=1.0.2"></script>
   
 	<script src="/menucontrol.js" type="text/javascript" charset="utf-8"></script>
-	<script src="fabric.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/fabric.js" type="text/javascript" charset="utf-8"></script>
 	<script src="/client.js" type="text/javascript" charset="utf-8"></script>  
+	<script src="/RecordRTC.js" type="text/javascript" charset="utf-8"> </script>
 
 	<link href="/menu.css" rel="stylesheet" type="text/css">
 	<link href="/control.css" rel="stylesheet" type="text/css">
@@ -257,10 +258,16 @@
 		<!-- Chatroom -->  
 		<div id="right" class="sidebar2">
 			<div style="width: 90%;  height: 20px;" >
-				<p id="welcome" align="left" style="display:inline"><b>[Chatroom], You're <%= user.local.username %>!</b></p>
+				<p id="welcome" align="left" style="display:inline"><b>[Chatroom], You're <%= user.local.username %>!</b>
+					<audio id="audio" autoplay muted></audio>
+					<img src="image/record.png" height="25" width="25" id="record-audio" />
+<!-- 					<button id="record-audio">Record</button>
+					<button id="stop-recording-audio" disabled>Stop</button> -->
+				</p>
 			</div>
 			<div id="conversation"></div>
-			<textarea rows="2" cols="25" id="data" autofocus="autofocus"/></textarea>
+			<textarea rows="3" id="data" autofocus="autofocus"/></textarea>
+
 		</div>
 </div>
 
@@ -446,7 +453,8 @@
 			msg: 'enterRoom' ,
 			data: {
 				username: client.username,
-				room: client.room
+				room: client.room,
+				date: new Date()
 			}
 		}));
 		alert('Enter Room!!!!');
@@ -510,7 +518,8 @@
 			msg: 'conversation',
 			data: {
 				username: client.username,
-				message: message
+				message: message,
+				date: new Date()
 			}
 		}));
 		$('#conversation').append('<b>'+client.username + ':</b> ' + message + '<br>');	
@@ -1561,6 +1570,66 @@
 			});*/
 		}
 	}
+	
+   function getByID(id) {
+		return document.getElementById(id);
+	}
+
+	var recordAudio = getByID('record-audio');
+		//stopRecordingAudio = getByID('stop-recording-audio');
+		
+	var audio = getByID('audio');
+
+	var audioConstraints = {
+		audio: true,
+		video: false
+	};
+	
+	var audioStream;
+	var recorder;
+	var recording = false;
+	recordAudio.onclick = function() {
+		if(!recording){
+			if (!audioStream)
+				navigator.getUserMedia(audioConstraints, function(stream) {
+					if (window.IsChrome) stream = new window.MediaStream(stream.getAudioTracks());
+					audioStream = stream;
+
+					audio.src = URL.createObjectURL(audioStream);
+					audio.play();
+
+					// "audio" is a default type
+					recorder = window.RecordRTC(stream, {
+						type: 'audio'
+					});
+					recorder.startRecording();
+				}, function() {
+				});
+			else {
+				audio.src = URL.createObjectURL(audioStream);
+				audio.play();
+				if (recorder) recorder.startRecording();
+			}
+
+			window.isAudio = true;
+	
+			recordAudio.src = "/image/stop.png";
+			recording=true;
+			//this.disabled = true;
+			//stopRecordingAudio.disabled = false;
+		}
+		else{
+			//this.disabled = true;
+			//recordAudio.disabled = false;
+			audio.src = '';
+			recordAudio.src = "/image/record.png";
+			recording=false;
+			if (recorder)
+				recorder.stopRecording(function(url) {
+					console.log(url);
+				});
+		}
+	};
 	
   </script>
   

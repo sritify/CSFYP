@@ -96,7 +96,9 @@ function Whiteboard(canvasId) {
 		editFontFamily:this.editFontFamily.bind(this),
 		editFontWeight:this.editFontWeight.bind(this),
 		editFontStyle:this.editFontStyle.bind(this),
-		conversation:this.conversation.bind(this)
+		conversation:this.conversation.bind(this),
+		enterRoom:this.enterRoom.bind(this),
+		leaveRoom:this.leaveRoom.bind(this)
     };
 
     // Initial state
@@ -451,6 +453,20 @@ Whiteboard.prototype.onObjectModified = function(e){
 Whiteboard.prototype.conversation = function(data) {
 	console.log(data);
 	$('#conversation').append('<b>'+data.username + ':</b> ' + data.message + '<br>');
+	var objDiv = document.getElementById("conversation");
+	objDiv.scrollTop = objDiv.scrollHeight;	
+};
+
+Whiteboard.prototype.enterRoom = function(data) {
+	console.log(data);
+	$('#conversation').append('<b>User '+data.username+' enter room. ('+ data.date + ')<br>');
+	var objDiv = document.getElementById("conversation");
+	objDiv.scrollTop = objDiv.scrollHeight;	
+};
+
+Whiteboard.prototype.leaveRoom = function(data) {
+	console.log(data);
+	$('#conversation').append('<b>User '+data.username+' leave room. ('+ data.date + ')<br>');
 	var objDiv = document.getElementById("conversation");
 	objDiv.scrollTop = objDiv.scrollHeight;	
 };

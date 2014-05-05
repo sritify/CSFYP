@@ -290,12 +290,24 @@ wsServer.on('request', function(request) {
 			}
 		}
 
+		global.connections[connection.room].forEach(function(destination) {	
+			destination.sendUTF(JSON.stringify({
+				msg: 'leaveRoom',
+				data: {
+					username: connection.username,
+					date: new Date()
+				}	
+			}));			
+		});
+		
 		//console.log(global.roomInfo[connection.room]);
         index = global.connections[connection.room].indexOf(connection);
         if (index !== -1) {
             // remove the connection from the pool
             global.connections[connection.room].splice(index, 1);
         }
+		
+
     });
 });
 
