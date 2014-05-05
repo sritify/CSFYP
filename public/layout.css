@@ -32,7 +32,7 @@ canvas{
 	margin: 0;
 	float:left;
 	overflow: scroll;
-	-webkit-overflow-scrolling: touch;
+	overflow-scrolling: touch;
 }
 
 #imageTemp{

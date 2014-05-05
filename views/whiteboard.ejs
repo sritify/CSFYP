@@ -34,10 +34,14 @@
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
   <script src="/jquery_UI_touch.js" type="text/javascript" charset="utf-8"></script>
+  <script src="jquery.nicescroll.js"></script>
   <script>
   $(function() {
     $( ".draggable" ).draggable({containment:"window"});
   });
+$(document).ready(function() { 
+		$("#container").niceScroll();		
+ }); 
   </script>
 
 </head>
@@ -258,17 +262,17 @@
 	
 		<!-- Chatroom -->  
 		<div id="right" class="sidebar2">
-			<div style="width: 90%;  height: 20px;" >
-				<p id="welcome" align="left" style="display:inline"><b>[Chatroom], You're <%= user.local.username %>!</b>
-					<audio id="audio" autoplay muted></audio>
-					<img src="image/record.png" height="25" width="25" id="record-audio" />
+			<div id='chat_info' style="width: 90%; display: block; overflow: auto" >
+				<p id="welcome" align="left" style="display:inline; font-size: 14px;"><b>Greetings, <%= user.local.username %>!</b>
+							<audio id="audio" style="float: right;" autoplay muted></audio>
+							<img src="image/record.png" height="25" width="25" id="record-audio" style="float:right"/>
+							
 <!-- 					<button id="record-audio">Record</button>
 					<button id="stop-recording-audio" disabled>Stop</button> -->
 				</p>
 			</div>
 			<div id="conversation"></div>
 			<textarea rows="3" id="data" autofocus="autofocus"/></textarea>
-
 		</div>
 
 
