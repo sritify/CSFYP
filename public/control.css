@@ -2,7 +2,6 @@ button:focus {outline:0;}
 
 #control{
 	font-size: 20;
-	overflow-x: auto;
 }
 
 #control ul {
@@ -15,15 +14,15 @@ button:focus {outline:0;}
 }
 
 #control li{
-	margin-left: 5px;
-	margin-top: 5px;
-	margin-bottom: 5px;
+	margin-left: 0px;
+	margin-top: 2px;
+	margin-bottom: 2px;
 	float: left;
 }
 
 #control li a{
 	display: block;
-	padding: 2px;
+	padding: 1px;
 	margin: 0px;
 	border: solid;
 	border-color: #E8E8E2;
@@ -34,14 +33,17 @@ button:focus {outline:0;}
 
 #control button,
 #control input{
-	height: 39px;
-	width: 41px;
+	height: 29px;
+	width: 31px;
 	padding: 0;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 }
-
+#control img{
+	height: 20px;
+	width: 25px;
+}
 #control .hovering a{
 	background: #858585;
 	border: solid;
@@ -50,17 +52,7 @@ button:focus {outline:0;}
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 }
-/*
-#control .active_menu a,
-#control .active_tool a{
-	background: #858585;
-	border: solid;
-	border-color: #858585;
-	border-radius: 5px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-}
-*/
+
 #control .active_menu button,
 #control .active_tool button{
 	background: #ADADAD;

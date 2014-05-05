@@ -1,13 +1,13 @@
 html {
 	text-align:left;
+	background-color: #E8E8E2;
 }
 
 body{
-	min-width: 1000px;
 	background-color: #E8E8E2;
-	height: 100vh;
 	margin: 0px;
 	padding: 0px;
+	overflow: hidden;
 }
 
 h1{
@@ -32,6 +32,7 @@ canvas{
 	margin: 0;
 	float:left;
 	overflow: scroll;
+	-webkit-overflow-scrolling: touch;
 }
 
 #imageTemp{
