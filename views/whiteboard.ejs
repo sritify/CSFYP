@@ -27,7 +27,9 @@
 	<link href="/chat.css" rel="stylesheet" type="text/css">
 	<link href="/segment.css" rel="stylesheet" type="text/css">
 	<link href="/mainmenu_sub.css" rel="stylesheet" type="text/css">
-  
+	
+	
+  <script src="/layout.js" type="text/javascript" charset="utf-8"></script> 
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
   <script src="/jquery_UI_touch.js" type="text/javascript" charset="utf-8"></script>
@@ -39,7 +41,6 @@
 
 </head>
 <body>
-<div id='wrap'>
 	<div id='control'>
 		<ul>
 			<li class='control_menu'><a href="/home">
@@ -164,7 +165,7 @@
 					<img src="/image/download.png" alt="Download" title="Download" height="30" width="35">
 				</button></a>
 			<li class='control_menu'><a>
-				<button id="edittext" onclick="openPopup('texteditor2'); closePopup('texteditor');">
+				<button id="youtube" >
 					<img src="/image/YouTube.png" alt="YouTube" title="YouTube" height="35" width="35">
 				</button></a>
 			</li>
@@ -260,9 +261,8 @@
 				<p id="welcome" align="left" style="display:inline"><b>[Chatroom], You're <%= user.local.username %>!</b></p>
 			</div>
 			<div id="conversation"></div>
-			<textarea rows="2" cols="25" id="data" autofocus="autofocus"/></textarea>
+			<textarea rows="3" id="data" autofocus="autofocus"/></textarea>
 		</div>
-</div>
 
 
 <!-- Pop Up Edit Text-->
@@ -1475,12 +1475,12 @@
 	
 	
 	//select();
-	
+/*	
 	fabric.util.addListener(document.getElementById('container'), 'scroll', function () {
 		console.log('scroll');
 		client.canvas2.calcOffset();
 	});
-	
+*/	
 	function textSizeChanged2(value) {
 		var activeObject = client.canvas2.getActiveObject();
 		if (activeObject) {
