@@ -2,13 +2,13 @@ button:focus {outline:0;}
 
 #control{
 	font-size: 20;
-	height: 56px;
+	overflow-x: auto;
 }
 
 #control ul {
   margin: 0;
   font-size: 14px;
-  background: #E8E8E2 repeat-x 0 -110px; 
+  background: #E8E8E2 repeat-x; 
   line-height: 100%;
   width: 100%;
   

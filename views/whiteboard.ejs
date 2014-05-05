@@ -5,17 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>FYP Interactive Whiteboard Room: <%= room %></title>
 
-  <style>
-  .content{
-	width: 100%;
-  }
-  .sidebar2{
-	width: 24.3%;
-	padding-left: 10px;
-	text-align: left;
-  }
-  </style>
-  
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
   
@@ -49,7 +38,7 @@
 
 </head>
 <body>
-
+<div id='wrap'>
 	<div id='control'>
 		<ul>
 			<li class='control_menu'><a href="/home">
@@ -65,33 +54,33 @@
 
 <!-- TOOLs -->			
 			<li id='tool' class='holdable control_menu'><a>
-				<button id='current_tool'>
+				<button id='current_tool' onclick="">
 					<img id='toolsimg' src="/image/pencil.png" alt="Tools" title="Tools"  height="30" width="35">
 				</button></a>	
 			</li>
 			<div class='toolbar'>
 				<ul>
-					<li class='control_tool active_tool'><a>
+					<li id='pencil' class='control_tool active_tool'><a>
 						<button onclick="setFunc('draw')">
 							<img src="/image/pencil.png" alt="Pencil" title="Pencil" height="20" width="25"></button></a>
 					</li>
-					<li class='control_tool'><a>
+					<li id='rectangle' class='control_tool'><a>
 						<button onclick="setFunc('drawRect')">
 							<img src="/image/rectangle.png" alt="Rectangle" title="Rectangle" height="20" width="25"></button></a>
 					</li>
-					<li class='control_tool'><a>
+					<li id='square' class='control_tool'><a>
 						<button onclick="setFunc('drawSquare')">
 							<img src="/image/square.png" alt="Square" title="Square" height="20" width="25"></button></a>
 					</li>
-					<li class='control_tool'><a>
+					<li id='oval' class='control_tool'><a>
 						<button onclick="setFunc('drawOval')">
 							<img src="/image/oval.png" alt="Oval" title="Oval" height="20" width="25"></button></a>
 					</li>
-					<li class='control_tool'><a>
+					<li id='circle' class='control_tool'><a>
 						<button onclick="setFunc('drawCircle')">
 							<img src="/image/circle.png" alt="Circle" title="Cirlce" height="20" width="25"></button></a>
 					</li>
-					<li class='control_tool'><a>
+					<li id='line' class='control_tool'><a>
 						<button onclick="setFunc('drawLine')">
 							<img src="/image/line.png" alt="Line" title="Line" height="20" width="25"></button></a>
 					</li>
@@ -161,12 +150,12 @@
 			</li>	
 			<li class='control_menu'><a>
 				<button onclick="save()">
-					<img src="/image/undo.png" alt="Save" title="Save" height="30" width="35">
+					<img src="/image/backup.png" alt="Backup" title="Backup" height="30" width="35">
 				</button></a> 
 			</li>
 			<li class='control_menu'><a>
 				<button onclick="restore()">
-					<img src="/image/redo.png" alt="Restore" title="Restore" height="30" width="35">
+					<img src="/image/restore.png" alt="Restore" title="Restore" height="30" width="35">
 				</button></a> 
 			</li>					
 			<li class='control_menu'><a>
@@ -175,7 +164,7 @@
 				</button></a>
 			<li class='control_menu'><a>
 				<button id="edittext" onclick="openPopup('texteditor2'); closePopup('texteditor');">
-					Edit Text
+					<img src="/image/YouTube.png" alt="YouTube" title="YouTube" height="35" width="35">
 				</button></a>
 			</li>
 			<li class='control_menu'><a>
@@ -220,23 +209,37 @@
 	</div>
 	
 		<div class='content'>
-				<button  style="float:left; z-index:9999999999999999999999;" onClick="toggle_menu()";>
-				Menu Display
+				<button id="toggle_menu" style="float:left; z-index:9999999999999999999999;" onClick="toggle_menu()";>
+				Hide Menu
 				</button>
-				<button  style="float:left; z-index:9999999999999999999999;" onClick="toggle_chat()";>
-				Chat Display
+				<button id="toggle_chat" style="float:left; z-index:9999999999999999999999;" onClick="toggle_chat()";>
+				Hide Chat
 				</button>
 				<script>
 					function toggle_menu(){
-						$("#control").slideToggle(200);
+						if ($("#control").is(":hidden")){
+							$("#control").slideDown(200);
+							$("#toggle_menu").html("Hide Menu");
+							$(".content").animate({height:"85%"},200);
+							$(".sidebar2").animate({height:"85%"},200);
+						}
+						else{
+							$("#control").slideUp(200);
+							$("#toggle_menu").html("Show Menu");
+							$(".content").animate({height:"95%"},200);
+							$(".sidebar2").animate({height:"95%"},200);
+						}
 					}
 					function toggle_chat(){
-						$(".sidebar2").toggle('slide', {direction: "right"},200);
-						if ($(".sidebar2").is(':visible')) {
-							$(".content").css("width","75%");                
-						} else {
-							$(".content").css("width","100%");               
-						} 
+						if ($(".sidebar2").is(":hidden")){
+							$(".sidebar2").show('slide', {direction: "right"},200);
+							$("#toggle_chat").html("Hide Chat");
+							$(".content").animate({width:"75%"},200);
+						} else{
+							$(".sidebar2").hide('slide', {direction: "right"},200);
+							$("#toggle_chat").html("Display Chat");	
+							$(".content").animate({width:"100%"},200);
+						}
 					}
 				</script>
 			<div id="container">
@@ -257,8 +260,9 @@
 			</div>
 			<div id="conversation"></div>
 			<input id="data" autofocus="autofocus"/>
-			<input class="button" type="button" id="datasend" value="send" />
 		</div>
+</div>
+
 
 <!-- Pop Up Edit Text-->
 	  

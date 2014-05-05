@@ -14,18 +14,34 @@ $(document).ready(function(){
 		$(".toolbar > ul").slideToggle(200);
 	});
 	
-	$(".control_menu").not("#tool").mousedown(function(){
+	$(".control_menu, canvas").not("#tool").mousedown(function(){
 		$(".toolbar > ul").slideUp(200);
 	});
 	
 	$(".control_tool").mousedown(function(){
 		$(".active_tool").removeClass("active_tool");
 		$(this).addClass("active_tool");
-		
 		toolsrc = $(".active_tool img").attr("src");
 		document.getElementById("toolsimg").src = toolsrc;
-		
-		
 		$(".toolbar > ul").slideUp(200);
+	});
+	
+	$("#pencil").click(function(){
+		$("#tool").attr("onclick","setFunc('draw')");
+	});
+	$("#rectangle").click(function(){
+		$("#tool").attr("onclick","setFunc('drawRect')");
+	});
+	$("#square").click(function(){
+		$("#tool").attr("onclick","setFunc('drawSquare')");
+	});
+	$("#oval").click(function(){
+		$("#tool").attr("onclick","setFunc('drawOval')");
+	});
+	$("#circle").click(function(){
+		$("#tool").attr("onclick","setFunc('drawCircle')");
+	});
+	$("#line").click(function(){
+		$("#tool").attr("onclick","setFunc('drawLine')");
 	});
 });
