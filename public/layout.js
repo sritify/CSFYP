@@ -6,7 +6,7 @@ $(document).ready(function(){
 		$('body').width(window_w).height(window_h*0.93);
 		$(".content").width(window_w*0.75).height((window_h-control_h)*0.93);
 		$(".sidebar2").width(window_w*0.246).height((window_h-control_h)*0.93);
-		$("#conversation").height(($(".sidebar2").height())-85);
+		$("#conversation").height(($(".sidebar2").height())-($("#chat_info").height()) -60);
 		$(window).resize(function(){
 			window_h = $(window).height();
 			window_w = $(window).width();
@@ -15,6 +15,6 @@ $(document).ready(function(){
 			$('body').width(window_w).height(window_h*0.93);
 			$(".content").width(window_w*0.75).height((window_h-control_h)*0.93);
 			$(".sidebar2").width(window_w*0.246).height((window_h-control_h)*0.93);
-			$("#conversation").height(($(".sidebar2").height())-85);
+			$("#conversation").height(($(".sidebar2").height())-($("#chat_info").height()) -60);
 		})
 });(jQuery)
