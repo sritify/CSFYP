@@ -9,15 +9,33 @@
 #show_status a:active  {color:red;}
 
 #status{
-	display: block;
-	height: 200px;
-	width: 150px;
-	z-index: 1;
-	color: #fff;
-	background: #000;
+	display: none;
+	position: absolute;
+
+	width: 180px;
+	padding-left: 10px;
+	z-index: 10;
+	text-align: left;
+	color: #ffffff;
+	background: #000000;
 	border: solid;
 	border-color: #000066;
 	-webkit-border-radius:8;
 	-moz-border-radius: 8px;
 	border-radius: 8px;
+}
+
+#status p{
+	text-align: center;
+	color: #ffffff;
+	font: 14pt bold;
+	text-decoration: underline;
+}
+
+#status ul{
+	margin-top: 15px;
+}
+#status li{
+	margin-bottom: 5px;
+	font: 12pt;
 }

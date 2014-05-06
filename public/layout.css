@@ -13,7 +13,6 @@ body{
 h1{
     font-size: 16pt;
     margin: 0px;
-	color: #ffffff;
 }
 
 p{
@@ -48,40 +47,42 @@ canvas{
 
 #enter_room{
 	text-align: center;
-	color: #fff;
-	background: #79A5F7;
+	color: #000000;
+	background: #E8E8E2;
 	display: none;
 	position: fixed;
-	top: 40%;
+	top: 80%;
 	left: 40%;
 	width: 160px;
 	height: 50px;
-	border: 5px solid #19469C;
-	border-radius: 30px;
-	-webkit-border-radius: 30px;
-	-moz-border-radius: 30px;
+	border: 5px solid silver;
+	border-radius: 18px;
+	-webkit-border-radius: 18px;
+	-moz-border-radius: 18px;
 	opacity: 0.6;
 }
 #enter_room h1{
 	font-size: 20px;
+	color: #000000;
 }
 
 #close_room{
 	text-align: center;
-	color: #fff;
-	background: #79A5F7;
+	color: #000000;
+	background: #E8E8E2;
 	display: none;
 	position: fixed;
-	top: 40%;
+	top: 80%;
 	left: 40%;
 	width: 200px;
 	height: 50px;
-	border: 5px solid #19469C;
-	border-radius: 30px;
-	-webkit-border-radius: 30px;
-	-moz-border-radius: 30px;
+	border: 5px solid silver;
+	border-radius: 18px;
+	-webkit-border-radius: 18px;
+	-moz-border-radius: 18px;
 	opacity: 0.6;
 }
 #close_room h1{
-	font-size: 20px;
+	font-size: 20pt;
+	color: #000000;
 }

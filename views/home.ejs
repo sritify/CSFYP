@@ -37,6 +37,40 @@
 		</tbody> 
 	</table>
 </div>
+
+	<style>
+		#popup_error{
+		text-align: center;
+		color: #000000;
+		background: #E8E8E2;
+		display: none;
+		position: fixed;
+		top: 80%;
+		left: 40%;
+		width: 240px;
+		height: 50px;
+		border: 5px solid silver;
+		border-radius: 18px;
+		-webkit-border-radius: 18px;
+		-moz-border-radius: 18px;
+		opacity: 0.6;
+		}
+		#popup_error{
+			font-size: 20pt;
+			color: #000000;
+		}
+	</style>
+	<script>
+		function error(){
+			$("#popup_error").fadeIn(500);
+			$("#popup_error").delay(1000).fadeOut(500);
+		}
+	</script>
+	<div id="popup_error">
+		<h1>Room Not Found</h1>
+	</div>
+	
+	
 </body>
 </html>
 

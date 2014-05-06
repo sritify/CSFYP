@@ -278,18 +278,11 @@
 					}
 				</script>
 				
-				<div class="ui basic test button" id="show_status">
-					<b>Status</b>
+				<div id="show_status">
+					<a href="#">
+						<b>Room Status</b>
+					</a>
 				</div>
-				<script>
-					$('.test.button')
-						.popup({
-							position : 'top right',
-							target   : '.test.button',
-							title    : 'My favorite dog',
-							content  : 'My favorite dog would like other dogs as much as themselves'
-						});
-				</script>
 				<div id="container">
 			
 					<!--   <canvas id="whiteboardCanvas" width="800" height="100%"></canvas> -->
@@ -469,11 +462,21 @@
 			</ul>
 	</div>  
 	
-<!-- hover Popup status 
+<!-- hover Popup status -->
 	<div id='status'>
-		<p style="text-decoration: underline;">Room Status</p>
+		<p>Room Status</p>
+		<ul>
+			<li> Host: Troy </li>
+			<li> User 1: Angus </li>
+			<li> User 1: Angus2 </li>
+			<li> User 1: Angus3 </li>
+			<li> User 1: Angus4 </li>
+			<li> User 1: Angus5 </li>
+			<li> User 1: Angus6 </li>
+			<li> User 1: Angus7 </li>
+		</ul>
 	</div>
--->
+
 <!-- Adjustment-->
 <div id="adjust" class="draggable">
 	<div id="customwidget" style="float:left; margin:5px">
@@ -531,8 +534,8 @@
 				date: new Date()
 			}
 		}));	
-		$("#enter_room").fadeIn(1000);
-		$("#enter_room").delay(1000).fadeOut(1000);
+		$("#enter_room").fadeIn(500);
+		$("#enter_room").delay(1000).fadeOut(500);
     });
 	
 	function waitForSocketConnection(socket, callback){
