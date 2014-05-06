@@ -88,6 +88,7 @@ display: none;
 }
 
 
+
 #imageuploader{
 	position:absolute;
     top: 10%;
@@ -180,6 +181,51 @@ display: none;
     z-index:100000000000000000;
 }
 
+#youtubeLinker{
+	position:absolute;
+    top: 10%;
+    left:42%;
+    min-width:600px;
+    min-height:100px;
+    font-family:verdana;
+    font-size:13px;
+    padding:10px;
+    background-color:rgb(240,240,240);
+    border:2px solid grey;
+    z-index:100000000000000000;
+    display:none
+}
+
+#youtubeLinker ul{
+	margin: 15px 0px 3px 5px;
+	padding: 0px;
+}
+
+#youtubeLinker li{
+	list-style:none;
+	padding: 3px;
+}
+
+#youtubeLinker input{
+	margin: 2px 0px 0px 2px;
+	padding: 0px;
+}
+
+#youtubeLinker .cancel{
+	display:relative;
+    cursor: pointer;
+    margin:0;
+    float:right;
+    height:15px;
+    width:15px;
+    padding:0 0 5px 0;
+    text-align:center;
+    font-weight:bold;
+    font-size:11px;
+    color:white;
+    border-radius:3px;
+    z-index:100000000000000000;
+}
 
 #adjust {
 	-webkit-border-radius: 10px;

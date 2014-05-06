@@ -15,7 +15,6 @@
     <script type="text/javascript" src="colorpicker/js/eye.js"></script>
     <script type="text/javascript" src="colorpicker/js/utils.js"></script>
     <script type="text/javascript" src="colorpicker/js/layout.js?ver=1.0.2"></script>
-  
 	<script src="/menucontrol.js" type="text/javascript" charset="utf-8"></script>
 	<script src="/fabric.js" type="text/javascript" charset="utf-8"></script>
 	<script src="/client.js" type="text/javascript" charset="utf-8"></script>  
@@ -47,14 +46,21 @@
   <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
   <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
   <script src="/jquery_UI_touch.js" type="text/javascript" charset="utf-8"></script>
-  <script src="jquery.nicescroll.js"></script>
+  <!-- <script src="jquery.nicescroll.js"></script> -->
+  
+      <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script> -->
+    <link type="text/css"
+		href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/redmond/jquery-ui.css" rel="stylesheet" />
+    <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script> -->
+  	<script type="text/javascript" src="https://www.youtube.com/iframe_api"></script>
+	<script src="/jquery.youtubepopup.js" type="text/javascript"  charset="utf-8"></script>
   <script>
   $(function() {
     $( ".draggable" ).draggable({containment:"window"});
   });
-$(document).ready(function() { 
-		$("#container").niceScroll();		
- }); 
+//$(document).ready(function() { 
+//		$("#container").niceScroll();		
+ //}); 
   </script>
 
 </head>
@@ -183,7 +189,7 @@ $(document).ready(function() {
 					<img src="/image/download.png" alt="Download" title="Download" height="30" width="35">
 				</button></a>
 			<li class='control_menu'><a>
-				<button id="youtube" >
+				<button onclick="openPopup('youtubeLinker')" >
 					<img src="/image/YouTube.png" alt="YouTube" title="YouTube" height="35" width="35">
 				</button></a>
 			</li>
@@ -338,6 +344,21 @@ $(document).ready(function() {
 				value="30"
 				oninput="textSizeChanged2(this.value);"
 				onchange="textSizeChanged2(this.value); changeDone();">
+			</li>
+		</ul>
+	</div>
+
+	<!-- POPUP TEXT EDITOR -->
+	<div id="youtubeLinker" class="popup draggable">
+		<div class="cancel" onclick="closePopup('youtubeLinker')">
+			<img src="/image/closewin.png" alt="Close" title="close" height="15" width="15">
+		</div>
+		<b style="font-size:12pt; color:#000000"> Youtube Player </b>
+		<ul>
+			<li>
+				Link: <input id="youtubeLink" style="width: 250px;" placeholder="Insert link here" 
+				onkeyup="$('#youtubeButton').attr('title', this.value);"/>
+				<button id="youtubeButton" title="http://youtu.be/e-zw2EV2_Oc">Open</button>
 			</li>
 		</ul>
 	</div>
@@ -1694,6 +1715,39 @@ $(document).ready(function() {
 		document.body.appendChild(form);
 		form.submit();
 	}
+	
+	$(function () {
+		$("#youtubeButton").YouTubePopup();
+	});
+	
+	var player;
+	
+	function onPlayerReady(event) {
+		event.target.playVideo();
+	}
+
+	// 5. The API calls this function when the player's state changes.
+	//    The function indicates that when playing a video (state=1),
+	//    the player should play for six seconds and then stop.
+	var done = false;
+	
+	function onPlayerStateChange(event) {
+		console.log(event);
+		if(event.data==1){
+			console.log("Video Play");
+		}
+		if(event.data==2){
+			console.log("Video Stop");
+		}
+		if(event.data==3){
+			console.log("Jump to: ", player.getCurrentTime());
+			//player.seekTo(200,true);
+		}
+	}
+	
+	function stopVideo() {
+		player.stopVideo();
+	}
   </script>
   
  <script>
@@ -1702,6 +1756,7 @@ $(document).ready(function() {
 		document.getElementById('texteditor2').style.display = 'none';
 		document.getElementById('imageuploader').style.display = 'none';
 		document.getElementById('imageuploader2').style.display = 'none';
+		document.getElementById('youtubeLinker').style.display = 'none';
 		document.getElementById(popid).style.display = 'block';
 	}
 

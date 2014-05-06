@@ -480,11 +480,13 @@ Whiteboard.prototype.leaveRoom = function(data) {
 	objDiv.scrollTop = objDiv.scrollHeight;	
 };
 
+function delayer(){
+	window.location="/home";
+}
+
 Whiteboard.prototype.roomClose = function(data) {
-	alert("Room closing... \nRedirect to home page in 3 second");
-	function delayer(){
-		window.location="/home";
-	}
+	//alert("Room closing... \nRedirect to home page in 3 second");
+
 	setTimeout('delayer()',3000);
 };
 
