@@ -33,15 +33,15 @@ button:focus {outline:0;}
 
 #control button,
 #control input{
-	height: 29px;
-	width: 31px;
-	padding: 0;
+	height: 31px;
+	width: 33px;
+	padding: 1px;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 }
 #control img{
-	height: 20px;
+	height: 25px;
 	width: 25px;
 }
 #control .hovering a{
@@ -63,8 +63,8 @@ button:focus {outline:0;}
 	z-index: 1;
 	position: absolute;
 	top: 40px;
-	left: 78px;
-	width: 43px;
+	left: 76px;
+	width: 45px;
 	margin: 0px;
 	padding: 0px;
 	background: #E8E8E2; 
@@ -90,4 +90,3 @@ button:focus {outline:0;}
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
 }
-

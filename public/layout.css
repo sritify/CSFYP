@@ -45,3 +45,43 @@ canvas{
     border:1px solid red;
     cursor:url("http://www.useragentman.com/examples/cursor/canvasPainter/canvas_painter_v0.1/images/gimpBrush.png") 0 32,crosshair;
 }
+
+#enter_room{
+	text-align: center;
+	color: #fff;
+	background: #79A5F7;
+	display: none;
+	position: fixed;
+	top: 40%;
+	left: 40%;
+	width: 160px;
+	height: 50px;
+	border: 5px solid #19469C;
+	border-radius: 30px;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	opacity: 0.6;
+}
+#enter_room h1{
+	font-size: 20px;
+}
+
+#close_room{
+	text-align: center;
+	color: #fff;
+	background: #79A5F7;
+	display: none;
+	position: fixed;
+	top: 40%;
+	left: 40%;
+	width: 200px;
+	height: 50px;
+	border: 5px solid #19469C;
+	border-radius: 30px;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	opacity: 0.6;
+}
+#close_room h1{
+	font-size: 20px;
+}
