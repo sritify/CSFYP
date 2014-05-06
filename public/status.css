@@ -1,0 +1,23 @@
+#show_status{
+	font-size: 14px;
+	float: right;
+}
+
+#show_status a:link    {color:blue;}
+#show_status a:visited {color:blue;}
+#show_status a:hover   {color:red;}
+#show_status a:active  {color:red;}
+
+#status{
+	display: block;
+	height: 200px;
+	width: 150px;
+	z-index: 1;
+	color: #fff;
+	background: #000;
+	border: solid;
+	border-color: #000066;
+	-webkit-border-radius:8;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+}

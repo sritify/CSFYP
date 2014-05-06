@@ -485,8 +485,7 @@ function delayer(){
 }
 
 Whiteboard.prototype.roomClose = function(data) {
-	//alert("Room closing... \nRedirect to home page in 3 second");
-
+	$("#close_room").fadeIn(500);
 	setTimeout('delayer()',3000);
 };
 
