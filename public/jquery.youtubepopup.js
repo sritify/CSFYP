@@ -83,6 +83,7 @@
 						});
 						YouTubeDialog.dialog('open');
 						$(".ui-widget-overlay").remove(); //set Overlay opacity
+						//window.onmousedown = function(e){ return true; }
 						var titleBar = $(".ui-dialog-titlebar");
 						// if (options.hideTitleBar && options.modal) { //hide Title Bar (only if Modal is enabled)
 							// titleBar.hide(); //hide Title Bar
@@ -124,6 +125,10 @@
 							}
 						});
 						
+						document.onmousedown=new Function("return true;"); 
+						document.onclick=new Function("return true;"); 
+						document.oncontextmenu=new Function("return true"); 
+						void(0); 
 						return false;
 					});
 				}

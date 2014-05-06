@@ -377,7 +377,7 @@
 			<li>
 				Link: <input id="youtubeLink" style="width: 250px;" placeholder="Insert link here" 
 				onkeyup="$('#youtubeButton').attr('title', this.value);"/>
-				<button id="youtubeButton" title="http://youtu.be/e-zw2EV2_Oc">Open</button>
+				<button id="youtubeButton" class="youtube" title="http://youtu.be/e-zw2EV2_Oc">Open</button>
 			</li>
 		</ul>
 	</div>
@@ -1751,7 +1751,7 @@
 	}
 	
 	$(function () {
-		$("#youtubeButton").YouTubePopup();
+		$("button.youtube").YouTubePopup();
 	});
 	
 	var player;
@@ -1781,6 +1781,10 @@
 	
 	function stopVideo() {
 		player.stopVideo();
+	}
+	
+	window.onmousedown = function(e){ 
+		console.log(e.target);
 	}
   </script>
   

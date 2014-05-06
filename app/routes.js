@@ -60,12 +60,12 @@ module.exports = function(app, passport) {
 	// we will want this protected so you have to be logged in to visit
 	// we will use route middleware to verify this (the isLoggedIn function)
 	app.get('/home', isLoggedIn, function(req, res) {
-		// console.log(req.query);
+		console.log(req.query.error);
 		// console.log(global);
 		// console.log(global.userRoom);
 		res.render('home.ejs', {
 			user : req.user, // get the user out of session and pass to template
-			//room : req.query.id
+			errorMessage : req.query.error,
 			numberOfRoom: global.numberOfRoom,
 			userRoom: global.userRoom,
 			roomInfo: global.roomInfo,

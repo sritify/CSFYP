@@ -41,6 +41,9 @@
 </html>
 
 <script>
+	<%if(errorMessage){%>
+		alert("error!");
+	<%}%>
 	var template = document.getElementById('roomInfoDisplay').innerHTML;
 	
 	$(document).ready(function() {	
