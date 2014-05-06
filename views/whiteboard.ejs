@@ -1750,8 +1750,16 @@
 		form.submit();
 	}
 	
+	var player;
+	var autoUpdate = null;
+	var time;
+	var seeking;
+	var playing;
+	
 	$("#youtubeButton").click(function(){
 		var url = document.getElementById('youtubeButton').title;
+		seeking = 0;
+		playing = true;
 		console.log(url);
 		client.socket.send(JSON.stringify({
 			msg: 'openYoutube',
@@ -1766,19 +1774,21 @@
 		$("button.youtube").YouTubePopup();
 	});
 	
-	var player;
-
-	
 	function onPlayerReady(event) {
-		event.target.playVideo();
+		notControlled = false;
+		player.seekTo(seeking,true);
+		if(playing)
+			event.target.playVideo();
+		else
+			event.target.stopVideo();
+		console.log(seeking);
+		notControlled = true;
 	}
 
 	// 5. The API calls this function when the player's state changes.
 	//    The function indicates that when playing a video (state=1),
 	//    the player should play for six seconds and then stop.
-	var autoUpdate = null;
-	var time;
-	var seeking;
+
 	var notControlled=true;
 	function checkSeek(){
 		var now = new Date();
