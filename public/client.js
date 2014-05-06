@@ -2756,7 +2756,8 @@ Whiteboard.prototype.setStyle = function(style) {
 };
 
 Whiteboard.prototype.youtube = function(data) {
-	console.log(data.json);
+	console.log(data);
+	console.log(data.json.seek+data.offset/1000);
 };
 
 Whiteboard.prototype.openYoutube = function(data) {

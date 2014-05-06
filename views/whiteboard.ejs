@@ -57,7 +57,9 @@
 		href="http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/redmond/jquery-ui.css" rel="stylesheet" />
     <!-- <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script> -->
   	<script type="text/javascript" src="https://www.youtube.com/iframe_api"></script>
+	
 	<script src="/jquery.youtubepopup.js" type="text/javascript"  charset="utf-8"></script>
+	<script src="/try.js" type="text/javascript"  charset="utf-8"></script>
   <script>
   $(function() {
     $( ".draggable" ).draggable({containment:"window"});
@@ -1765,15 +1767,10 @@
 	});
 	
 	var player;
-	
-	
-	
+
 	
 	function onPlayerReady(event) {
 		event.target.playVideo();
-		document.getElementsByTagName('iframe')[0].onclick = function(){
-			console.log('click');
-		};
 	}
 
 	// 5. The API calls this function when the player's state changes.
@@ -1785,7 +1782,10 @@
 	var notControlled=true;
 	function checkSeek(){
 		var now = new Date();
+		//console.log((player.getCurrentTime()-seeking)-((now-time)/1000));
 		if((player.getCurrentTime()-seeking)<0||((player.getCurrentTime()-seeking)-((now-time)/1000))>3.0){
+			console.log("seek!");
+			seeking = player.getCurrentTime();
 			client.socket.send(JSON.stringify({
 				msg: 'seekYoutube',
 				data:{
@@ -1818,16 +1818,19 @@
 				autoUpdate = null;
 			}
 		}
-/*		if(event.data==3){
-			console.log("Jump to: ", player.getCurrentTime());
-			client.socket.send(JSON.stringify({
-				msg: 'seekYoutube',
-				data:{
-					time: player.getCurrentTime()
-				}
-			}));
-			//player.seekTo(200,true);
-		}*/
+		if(event.data==3){
+			if(notControlled){
+				console.log("Jump to: ", player.getCurrentTime());
+				seeking = player.getCurrentTime();
+				client.socket.send(JSON.stringify({
+					msg: 'seekYoutube',
+					data:{
+						time: player.getCurrentTime()
+					}
+				}));
+				//player.seekTo(200,true);
+			}
+		}
 	}
 	
 	function stopVideo() {

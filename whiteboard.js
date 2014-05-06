@@ -120,9 +120,67 @@ wsServer.on('request', function(request) {
 				
 				if(command.msg === 'openYoutube'){
 					global.youtube[connection.room].opening=true;
+					global.youtube[connection.room].playing=true;
 					global.youtube[connection.room].url=command.data.url;
+					global.youtube[connection.room].seek=0;
 					global.youtube[connection.room].date=new Date();
 					
+					console.log(global.youtube[connection.room]);
+					global.connections[connection.room].forEach(function(destination) {	
+						if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
+							destination.sendUTF(message.utf8Data);
+						//console.log(message.utf8Data);				
+					});
+					
+					return;
+				}
+				
+				if(command.msg === 'playYoutube'){
+					global.youtube[connection.room].playing=true;
+					global.youtube[connection.room].date=new Date();
+					
+					console.log(global.youtube[connection.room]);
+					global.connections[connection.room].forEach(function(destination) {	
+						if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
+							destination.sendUTF(message.utf8Data);
+						//console.log(message.utf8Data);				
+					});
+					
+					return;
+				}
+				
+				if(command.msg === 'stopYoutube'){
+					global.youtube[connection.room].playing=false;
+					global.youtube[connection.room].seek += (new Date()-global.youtube[connection.room].date)/1000;
+					
+					console.log(global.youtube[connection.room]);
+					global.connections[connection.room].forEach(function(destination) {	
+						if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
+							destination.sendUTF(message.utf8Data);
+						//console.log(message.utf8Data);				
+					});
+					
+					return;
+				}
+				
+				if(command.msg === 'seekYoutube'){
+					global.youtube[connection.room].seek=command.data.time;
+					global.youtube[connection.room].date=new Date();
+					
+					console.log(global.youtube[connection.room]);
+					global.connections[connection.room].forEach(function(destination) {	
+						if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
+							destination.sendUTF(message.utf8Data);
+						//console.log(message.utf8Data);				
+					});
+					
+					return;
+				}
+				
+				if(command.msg === 'closeYoutube'){
+					global.youtube[connection.room].opening=false;
+					
+					console.log(global.youtube[connection.room]);
 					global.connections[connection.room].forEach(function(destination) {	
 						if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
 							destination.sendUTF(message.utf8Data);
@@ -170,13 +228,24 @@ wsServer.on('request', function(request) {
 					}));
 					
 					//if open...
-					if(global.youtube[connection.room].opening)
-						connection.sendUTF(JSON.stringify({
-							msg: "youtube",
-							data: {
-								json: global.youtube[connection.room]
-							}
-						}));
+					if(global.youtube[connection.room].opening){
+						if(global.youtube[connection.room].playing==false)
+							connection.sendUTF(JSON.stringify({
+								msg: "youtube",
+								data: {
+									json: global.youtube[connection.room],
+									offset: 0
+								}
+							}));
+						else
+							connection.sendUTF(JSON.stringify({
+								msg: "youtube",
+								data: {
+									json: global.youtube[connection.room],
+									offset: new Date()-global.youtube[connection.room].date
+								}
+							}));
+					}
 					
 					if(global.editable[connection.room] == false){
 						connection.sendUTF(JSON.stringify({
