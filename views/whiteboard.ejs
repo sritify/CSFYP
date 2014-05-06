@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>FYP Interactive Whiteboard Room: <%= room %></title>
+  <title>Interactive Whiteboard Room ID: <%= room %></title>
 <!--
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
@@ -203,6 +203,9 @@ $(document).ready(function() {
 				</button></a> 
 			</li>
 			<%if(user.local.username==host){ %>
+				<li class='control_menu'><a>
+					<button id="Close" onclick="closeRoom()">Close Room</button></a> 
+				</li>
 				<li class='control_menu' style="float:right"><a>
 					<input type="image" id="updateButton" value="Disable Edit" src="/image/green.png" height="30" width="35" alt="Enabling Edit" title="Enabling Edit" onClick="disable_edit();">
 					</a>
@@ -1672,6 +1675,25 @@ $(document).ready(function() {
 		}
 	};
 	
+	function closeRoom(){
+		client.socket.send(JSON.stringify({
+			msg: 'roomClose'
+		}));
+		
+		var form = document.createElement("form");
+		form.setAttribute("method", "POST");
+		form.setAttribute("action", "closeroom");
+
+		var hiddenField = document.createElement("input");
+		hiddenField.setAttribute("type", "hidden");
+		hiddenField.setAttribute("name", "id");
+		hiddenField.setAttribute("value", "<%= room %>");
+
+		form.appendChild(hiddenField);
+
+		document.body.appendChild(form);
+		form.submit();
+	}
   </script>
   
  <script>

@@ -98,7 +98,8 @@ function Whiteboard(canvasId) {
 		editFontStyle:this.editFontStyle.bind(this),
 		conversation:this.conversation.bind(this),
 		enterRoom:this.enterRoom.bind(this),
-		leaveRoom:this.leaveRoom.bind(this)
+		leaveRoom:this.leaveRoom.bind(this),
+		roomClose:this.roomClose.bind(this)
     };
 
     // Initial state
@@ -477,6 +478,14 @@ Whiteboard.prototype.leaveRoom = function(data) {
 	$('#conversation').append('<b>User '+data.username+' leave room. ('+ data.date + ')<br>');
 	var objDiv = document.getElementById("conversation");
 	objDiv.scrollTop = objDiv.scrollHeight;	
+};
+
+Whiteboard.prototype.roomClose = function(data) {
+	alert("Room closing... \nRedirect to home page in 3 second");
+	function delayer(){
+		window.location="/home";
+	}
+	setTimeout('delayer()',3000);
 };
 
 Whiteboard.prototype.selection = function(data) {

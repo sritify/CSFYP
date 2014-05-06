@@ -77,22 +77,27 @@ module.exports = function(app, passport) {
 	
 	app.get('/roomInfo', function(req, res) {
 		//res.writeHead(200, {"Content-Type": "text/json"});
-		var json = "";
-		if (global.numberOfRoom != 0) {
-			for (var i=0; i<global.room.length; i++) {
-				json = json + "<tr>";
-				json = json + "<td><a href='/whiteboard?id="+global.room[i]+"' class='btn btn-default btn-sm'>Enter</a></td>";
-				json = json + "<td>"+global.room[i]+"</td>";
-				json = json + "<td>"+"<a href='/user?user="+global.host[global.room[i]]+"'>"+global.host[global.room[i]]+"</a></td>";
-				json = json + "<td>"+global.date[global.room[i]]+"</td>";	
-				json = json + "<td>";
-				for (var j=0;j<global.roomInfo[global.room[i]].length;j++){
-					json = json + global.roomInfo[global.room[i]][j] + " ";
+		if(req.query.id){
+			console.log(req.query);
+		}
+		else{
+			var json = "";
+			if (global.numberOfRoom != 0) {
+				for (var i=0; i<global.room.length; i++) {
+					json = json + "<tr>";
+					json = json + "<td><a href='/whiteboard?id="+global.room[i]+"' class='btn btn-default btn-sm'>Enter</a></td>";
+					json = json + "<td>"+global.room[i]+"</td>";
+					json = json + "<td>"+"<a href='/user?user="+global.host[global.room[i]]+"'>"+global.host[global.room[i]]+"</a></td>";
+					json = json + "<td>"+global.date[global.room[i]]+"</td>";	
+					json = json + "<td>";
+					for (var j=0;j<global.roomInfo[global.room[i]].length;j++){
+						json = json + global.roomInfo[global.room[i]][j] + " ";
+					}
+					json = json + "</td></tr>";
 				}
-				json = json + "</td></tr>";
-			}
-		}	
-		res.send(json);
+			}	
+			res.send(json);
+		}
 	});
 	
 	app.get('/user', isLoggedIn, function(req, res) {
@@ -117,7 +122,7 @@ module.exports = function(app, passport) {
 	app.get('/whiteboard', isLoggedIn, function(req, res) {
 		console.log(req.user.local.username);
 		var id = req.query.id;
-		if((id in global.roomInfo)){
+		if(global.room.indexOf(id) > -1){
 			// if(global.roomInfo[id].indexOf(req.user.local.username)==-1){
 			global.roomInfo[id].push(req.user.local.username);		
 			res.render('whiteboard.ejs', {
@@ -137,7 +142,12 @@ module.exports = function(app, passport) {
 	
 	app.get('/profile', isLoggedIn, function(req, res) {
 		res.render('profile.ejs', {
-			user : req.user // get the user out of session and pass to template
+			user : req.user, // get the user out of session and pass to template
+			numberOfRoom: global.numberOfRoom,
+			userRoom: global.userRoom[req.user.local.username],
+			roomInfo: global.roomInfo,
+			room: global.room,
+			data: global.date
 		});
 	});
 	
@@ -162,6 +172,35 @@ module.exports = function(app, passport) {
 			global.userRoom[req.user.local.username] = new Array();
 		global.userRoom[req.user.local.username].push(id);
 		res.render('createroom.ejs', {
+			user : req.user, // get the user out of session and pass to template
+			room : id
+		});
+	});
+	
+	app.post('/closeroom', isLoggedIn, function(req, res) {
+		console.log(req.body);
+	    var id = req.body.id;
+		global.numberOfRoom--;
+		global.host[id]="";
+		global.date[id]="";
+		global.editable[id]=true;
+		global.selection[id] = {};
+		global.json[id] = "";
+		global.connections[id] = new Array();
+		global.canvasCommands[id] = new Array();
+		global.chatHistory[id] = new Array();
+		global.roomInfo[id] = new Array();	
+        var index = global.room.indexOf(id);
+        if (index !== -1) {
+            // remove the connection from the pool
+			global.room.splice(index, 1);
+        }
+        var index = global.userRoom[req.user.local.username].indexOf(id);
+        if (index !== -1) {
+            // remove the connection from the pool
+			global.userRoom[req.user.local.username].splice(index, 1);
+        }
+		res.render('closeroom.ejs', {
 			user : req.user, // get the user out of session and pass to template
 			room : id
 		});

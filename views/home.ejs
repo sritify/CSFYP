@@ -54,11 +54,11 @@
 			type: 'GET',
 			success: function (data) {
 				//var ret = jQuery.parseJSON(data);
-				console.log('Success: ', data);
+				//console.log('Success: ', data);
 				document.getElementById('roomInfoDisplay').innerHTML = template + data;
 			},
 			error: function (xhr, status, error) {
-				console.log('Error: ' + error.message);
+				//console.log('Error: ' + error.message);
 			},
 		});
 	}
