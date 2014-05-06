@@ -47,8 +47,8 @@
 		position: fixed;
 		top: 80%;
 		left: 40%;
-		width: 240px;
-		height: 50px;
+		width: 200px;
+		height: 40px;
 		border: 5px solid silver;
 		border-radius: 18px;
 		-webkit-border-radius: 18px;
@@ -56,27 +56,23 @@
 		opacity: 0.6;
 		}
 		#popup_error{
-			font-size: 20pt;
+			font-size: 14pt;
 			color: #000000;
 		}
 	</style>
-	<script>
-		function error(){
-			$("#popup_error").fadeIn(500);
-			$("#popup_error").delay(1000).fadeOut(500);
-		}
-	</script>
-	<div id="popup_error">
-		<h1>Room Not Found</h1>
-	</div>
-	
-	
+
+	<div id="popup_error">Room Not Found!</div>
+
 </body>
 </html>
 
 <script>
+	function errorLog(){
+		$("#popup_error").fadeIn(500);
+		$("#popup_error").delay(1000).fadeOut(500);
+	}
 	<%if(errorMessage){%>
-		alert("error!");
+		errorLog();
 	<%}%>
 	var template = document.getElementById('roomInfoDisplay').innerHTML;
 	

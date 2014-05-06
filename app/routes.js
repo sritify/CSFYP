@@ -78,20 +78,22 @@ module.exports = function(app, passport) {
 	app.get('/roomInfo', function(req, res) {
 		//res.writeHead(200, {"Content-Type": "text/json"});
 		if(req.query.id){
-			var json = "";
-			if (global.numberOfRoom != 0) {
-				for (var i=0; i<global.room.length; i++) {
-					json = json + "<tr>";
-					json = json + "<td>"+req.query.id+"</td>";
-					json = json + "<td>"+"<a href='/user?user="+global.host[req.query.id]+"'>"+global.host[req.query.id]+"</a></td>";
-					json = json + "<td>"+global.date[req.query.id]+"</td>";	
-					json = json + "<td>";
-					for (var j=0;j<global.roomInfo[req.query.id].length;j++){
-						json = json + global.roomInfo[req.query.id][j] + " ";
-					}
-					json = json + "</td></tr>";
-				}
-			}	
+			var json = "Room ID: ";
+			json += req.query.id;
+			json += "<ul>";
+			json += "<li>Host: ";
+			json += global.host[req.query.id];
+			json += "</li>";
+			json += "<li>Create Date: ";
+			json += global.date[req.query.id];
+			json += "</li>";
+			json += "<br>";
+			for (var j=0;j<global.roomInfo[req.query.id].length;j++){
+				json = json + "<li>User "+(j+1)+": ";
+				json += global.roomInfo[req.query.id][j];
+				json += "</li>";
+			}
+			json += "</ul>";
 			res.send(json);
 		}
 		else{

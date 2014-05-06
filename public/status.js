@@ -1,5 +1,19 @@
 $(document).ready(function(){
 	$("#show_status").mouseenter(function(){
+		var get = 'id='+client.room;
+		$.ajax({
+			url: 'roomInfo',
+			type: 'GET',
+			data: get,
+			success: function (data) {
+				//var ret = jQuery.parseJSON(data);
+				//console.log('Success: ', data);
+				document.getElementById('status').innerHTML = data;
+			},
+			error: function (xhr, status, error) {
+				//console.log('Error: ' + error.message);
+			},
+		});
 		var show_status = $("#show_status").offset();
 		var t = show_status.top;
 		var l = show_status.left;
