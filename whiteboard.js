@@ -81,6 +81,7 @@ global.roomInfo = new Array();
 global.userRoom = new Array();
 global.room = new Array();
 global.date = new Array();
+global.youtube = new Array();
 
 var id = 0;
 
@@ -115,6 +116,20 @@ wsServer.on('request', function(request) {
 							}
 						}));
 					});
+				}
+				
+				if(command.msg === 'openYoutube'){
+					global.youtube[connection.room].opening=true;
+					global.youtube[connection.room].url=command.data.url;
+					global.youtube[connection.room].date=new Date();
+					
+					global.connections[connection.room].forEach(function(destination) {	
+						if(global.connections[connection.room].indexOf(destination)!=global.connections[connection.room].indexOf(connection))
+							destination.sendUTF(message.utf8Data);
+						//console.log(message.utf8Data);				
+					});
+					
+					return;
 				}
 				
 				if (command.msg === 'enterRoom'){
@@ -153,6 +168,15 @@ wsServer.on('request', function(request) {
 							json: global.selection[connection.room]
 						}
 					}));
+					
+					//if open...
+					if(global.youtube[connection.room].opening)
+						connection.sendUTF(JSON.stringify({
+							msg: "youtube",
+							data: {
+								json: global.youtube[connection.room]
+							}
+						}));
 					
 					if(global.editable[connection.room] == false){
 						connection.sendUTF(JSON.stringify({

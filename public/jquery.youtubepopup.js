@@ -30,6 +30,9 @@
 						defaultCss.backgroundColor = $(".ui-dialog").css('background-color');
 					},
 					close: function () {
+						client.socket.send(JSON.stringify({
+							msg: 'closeYoutube'
+						}));
 						YouTubeDialog.html('');
 						$(".ui-dialog-titlebar").show();
 						$(".ui-dialog").css({
@@ -125,11 +128,11 @@
 							}
 						});
 						
-						document.onmousedown=new Function("return true;"); 
-						document.onclick=new Function("return true;"); 
-						document.oncontextmenu=new Function("return true"); 
-						void(0); 
-						return false;
+						// document.onmousedown=new Function("return true;"); 
+						// document.onclick=new Function("return true;"); 
+						// document.oncontextmenu=new Function("return true"); 
+						// void(0); 
+						// return false;
 					});
 				}
 			});

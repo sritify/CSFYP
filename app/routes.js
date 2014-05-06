@@ -172,6 +172,13 @@ module.exports = function(app, passport) {
 		global.numberOfRoom++;
 		global.host[id]=req.user.local.username;
 		global.date[id]=new Date();
+		global.youtube[id] = {
+			url: '',
+			playing: false,
+			opening: false,
+			seek: 0,
+			date: new Date()
+		};
 		global.editable[id]=true;
 		global.selection[id] = {};
 		global.json[id] =JSON.stringify({

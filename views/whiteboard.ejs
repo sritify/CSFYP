@@ -372,6 +372,7 @@
 				Link: <input id="youtubeLink" style="width: 250px;" placeholder="Insert link here" 
 				onkeyup="$('#youtubeButton').attr('title', this.value);"/>
 				<button id="youtubeButton" class="youtube" title="http://youtu.be/e-zw2EV2_Oc">Open</button>
+				<button id="youtubeButton2" class="youtube" title="" hidden></button>
 			</li>
 		</ul>
 	</div>
@@ -1747,41 +1748,90 @@
 		form.submit();
 	}
 	
+	$("#youtubeButton").click(function(){
+		var url = document.getElementById('youtubeButton').title;
+		console.log(url);
+		client.socket.send(JSON.stringify({
+			msg: 'openYoutube',
+			data: {
+				username: client.username,
+				url: url
+			}
+		}));
+	});
+	
 	$(function () {
 		$("button.youtube").YouTubePopup();
 	});
 	
 	var player;
 	
+	
+	
+	
 	function onPlayerReady(event) {
 		event.target.playVideo();
+		document.getElementsByTagName('iframe')[0].onclick = function(){
+			console.log('click');
+		};
 	}
 
 	// 5. The API calls this function when the player's state changes.
 	//    The function indicates that when playing a video (state=1),
 	//    the player should play for six seconds and then stop.
-	var done = false;
+	var autoUpdate = null;
+	var time;
+	var seeking;
+	var notControlled=true;
+	function checkSeek(){
+		var now = new Date();
+		if((player.getCurrentTime()-seeking)<0||((player.getCurrentTime()-seeking)-((now-time)/1000))>3.0){
+			client.socket.send(JSON.stringify({
+				msg: 'seekYoutube',
+				data:{
+					time: player.getCurrentTime()
+				}
+			}));
+		}
+	}
 	
 	function onPlayerStateChange(event) {
 		console.log(event);
 		if(event.data==1){
-			console.log("Video Play");
+			if(notControlled){
+				console.log("Video Play");
+				client.socket.send(JSON.stringify({
+					msg: 'playYoutube'
+				}));
+				autoUpdate = setInterval( checkSeek, 1000 );
+				time = new Date();
+				seeking = player.getCurrentTime();
+			}
 		}
 		if(event.data==2){
-			console.log("Video Stop");
+			if(notControlled){
+				console.log("Video Stop");
+				client.socket.send(JSON.stringify({
+					msg: 'stopYoutube'
+				}));
+				clearInterval( autoUpdate );
+				autoUpdate = null;
+			}
 		}
-		if(event.data==3){
+/*		if(event.data==3){
 			console.log("Jump to: ", player.getCurrentTime());
+			client.socket.send(JSON.stringify({
+				msg: 'seekYoutube',
+				data:{
+					time: player.getCurrentTime()
+				}
+			}));
 			//player.seekTo(200,true);
-		}
+		}*/
 	}
 	
 	function stopVideo() {
 		player.stopVideo();
-	}
-	
-	window.onmousedown = function(e){ 
-		console.log(e.target);
 	}
   </script>
   

@@ -99,7 +99,13 @@ function Whiteboard(canvasId) {
 		conversation:this.conversation.bind(this),
 		enterRoom:this.enterRoom.bind(this),
 		leaveRoom:this.leaveRoom.bind(this),
-		roomClose:this.roomClose.bind(this)
+		roomClose:this.roomClose.bind(this),
+		youtube: this.youtube.bind(this),
+		openYoutube:this.openYoutube.bind(this),
+		playYoutube:this.playYoutube.bind(this),
+		stopYoutube:this.stopYoutube.bind(this),
+		seekYoutube:this.seekYoutube.bind(this), 
+		closeYoutube:this.closeYoutube.bind(this)
     };
 
     // Initial state
@@ -2748,6 +2754,39 @@ Whiteboard.prototype.setLatex = function(latexImage) {
 Whiteboard.prototype.setStyle = function(style) {
     this.style = style;
 };
+
+Whiteboard.prototype.youtube = function(data) {
+	console.log(data.json);
+};
+
+Whiteboard.prototype.openYoutube = function(data) {
+	var button = document.getElementById('youtubeButton2');
+	button.title=data.url;
+	button.click();
+};
+
+Whiteboard.prototype.playYoutube = function(data) {
+	notControlled = false;
+	player.playVideo();
+	notControlled = true;
+};
+
+Whiteboard.prototype.stopYoutube = function(data) {
+	notControlled = false;
+	player.stopVideo();
+	notControlled = true;
+};
+
+Whiteboard.prototype.seekYoutube = function(data) {
+	notControlled = false;
+	player.seekTo(data.time,true);
+	notControlled = true;
+};
+
+Whiteboard.prototype.closeYoutube = function(data) {
+	document.getElementsByClassName('ui-button')[0].click();
+};
+
 
 Whiteboard.prototype.setFunc = function(command) {
     this.command = command;
