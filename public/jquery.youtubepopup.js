@@ -197,7 +197,7 @@
 		'idAttribute': 'rel',
 		'cssClass': 'YouTubeDialog',
 		'draggable': true,
-		'modal': true,
+		'modal': false,
 		'width': 640,
 		'height': 390,
 		'hideTitleBar': false,
