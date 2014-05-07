@@ -205,7 +205,7 @@ module.exports = function(app, passport) {
 			res.redirect('/home');
 		else
 			res.render('index.ejs'); // load the index.ejs file
-	}
+	});
 	
 	app.post('/closeroom', isLoggedIn, function(req, res) {
 		console.log(req.body);
