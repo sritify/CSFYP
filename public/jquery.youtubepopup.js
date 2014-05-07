@@ -108,6 +108,8 @@
 							});
 						}
 						
+						console.log(client.seeking);
+						
 						player = new YT.Player('player', {
 							height: options.height,
 							width: options.width,
@@ -120,7 +122,8 @@
 								'loop': options.loop,
 								'showinfo': options.showinfo,
 								'color': options.color,
-								'theme': options.theme
+								'theme': options.theme,
+								'start': Math.round(client.seeking)
 							},
 							events: {
 								'onReady': window.onPlayerReady,

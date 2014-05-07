@@ -1753,13 +1753,11 @@
 	var player;
 	var autoUpdate = null;
 	var time;
-	var seeking;
-	var playing;
 	
 	$("#youtubeButton").click(function(){
 		var url = document.getElementById('youtubeButton').title;
-		seeking = 0;
-		playing = true;
+		client.seeking = 0;
+		client.playing = true;
 		console.log(url);
 		client.socket.send(JSON.stringify({
 			msg: 'openYoutube',
@@ -1776,12 +1774,12 @@
 	
 	function onPlayerReady(event) {
 		notControlled = false;
-		player.seekTo(seeking,true);
-		if(playing)
+		//player.seekTo(seeking,true);
+		if(client.playing)
 			event.target.playVideo();
 		else
 			event.target.stopVideo();
-		console.log(seeking);
+		//console.log(seeking);
 		notControlled = true;
 	}
 
@@ -1793,9 +1791,9 @@
 	function checkSeek(){
 		var now = new Date();
 		//console.log((player.getCurrentTime()-seeking)-((now-time)/1000));
-		if((player.getCurrentTime()-seeking)<0||((player.getCurrentTime()-seeking)-((now-time)/1000))>3.0){
+		if((player.getCurrentTime()-client.seeking)<0||((player.getCurrentTime()-client.seeking)-((now-time)/1000))>3.0){
 			console.log("seek!");
-			seeking = player.getCurrentTime();
+			client.seeking = player.getCurrentTime();
 			client.socket.send(JSON.stringify({
 				msg: 'seekYoutube',
 				data:{
@@ -1815,7 +1813,7 @@
 				}));
 				autoUpdate = setInterval( checkSeek, 1000 );
 				time = new Date();
-				seeking = player.getCurrentTime();
+				client.seeking = player.getCurrentTime();
 			}
 		}
 		if(event.data==2){
@@ -1831,7 +1829,7 @@
 		if(event.data==3){
 			if(notControlled){
 				console.log("Jump to: ", player.getCurrentTime());
-				seeking = player.getCurrentTime();
+				client.seeking = player.getCurrentTime();
 				client.socket.send(JSON.stringify({
 					msg: 'seekYoutube',
 					data:{

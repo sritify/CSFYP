@@ -26,6 +26,8 @@ function Whiteboard(canvasId) {
 	this.canvas2 = new fabric.Canvas(canvasId);
 	this.canvasScale = 1;
 	this.selectList = {};
+	this.seeking;
+	this.playing;
 	
 	fabric.Object.prototype.originX = "center"; 
 	fabric.Object.prototype.originY = "center";
@@ -2757,14 +2759,14 @@ Whiteboard.prototype.setStyle = function(style) {
 
 Whiteboard.prototype.youtube = function(data) {
 	console.log(data);
+	this.seeking = data.json.seek+data.offset/1000;
 	var button = document.getElementById('youtubeButton2');
 	button.title=data.json.url;
 	button.click();
 	if(data.json.playing)
-		playing = true;
+		this.playing = true;
 	else
-		playing = false;
-	seeking = data.json.seek+data.offset/1000;
+		this.playing = false;
 };
 
 Whiteboard.prototype.openYoutube = function(data) {
