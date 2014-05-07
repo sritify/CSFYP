@@ -189,6 +189,17 @@ wsServer.on('request', function(request) {
 					
 					return;
 				}
+
+				if (command.msg === 'forceRoomClose'){
+					//console.log(command.data);
+					connection.username = command.data.username;
+					connection.room = command.data.room;
+					global.connections[connection.room].forEach(function(destination) {	
+						destination.sendUTF(JSON.stringify({
+							msg: 'roomClose'
+						}));				
+					});
+				}
 				
 				if (command.msg === 'enterRoom'){
 					//console.log(command.data);

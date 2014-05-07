@@ -3,6 +3,7 @@
 <html>
 <head>
 	<title>Interactive WhiteBoard</title>
+	<script src="/client.js" type="text/javascript" charset="utf-8"></script>  
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
 	<style>
@@ -58,6 +59,7 @@
 			<tr>
 			<td>
 				<a href="/whiteboard?id=<%=userRoom[i]%>" class="btn btn-default btn-sm">Enter</a>
+				<button onclick="closeRoom(this.title)" title="<%=userRoom[i]%>" class="btn btn-default btn-sm">Remove</button>
 			</td>
 			<td>
 				<%=userRoom[i]%>
@@ -81,4 +83,60 @@
 
 </div>
 </body>
-</html>
+
+<script>
+	function closeRoom(id){		
+		//var client = new Whiteboard('whiteboardCanvas');
+		//client.connect2();
+		var url = "ws://" + document.URL.substr(7).split('/')[0];
+    
+		var wsCtor = window['MozWebSocket'] ? MozWebSocket : WebSocket;
+		socket = new wsCtor(url, 'whiteboard');
+
+		username = "<%=user.local.username%>";
+		room = id;
+		waitForSocketConnection(socket, function(){
+			socket.send(JSON.stringify({
+				msg: 'forceRoomClose',
+				data: {
+					username: username,
+					room: room,
+					date: new Date()
+				}
+			}));
+			
+			var form = document.createElement("form");
+			form.setAttribute("method", "POST");
+			form.setAttribute("action", "closeroom");
+
+			var hiddenField = document.createElement("input");
+			hiddenField.setAttribute("type", "hidden");
+			hiddenField.setAttribute("name", "id");
+			hiddenField.setAttribute("value", id);
+
+			form.appendChild(hiddenField);
+
+			document.body.appendChild(form);
+			form.submit();
+		});
+		
+		function waitForSocketConnection(socket, callback){
+		setTimeout(
+			function () {
+				if (socket.readyState === 1) {
+					//console.log("Connection is made")
+					if(callback != null){
+						callback();
+					}
+					return;
+
+				} else {
+					//console.log("wait for connection...")
+					waitForSocketConnection(socket, callback);
+				}
+
+			}, 5); // wait 5 milisecond for the connection...
+		}
+	}
+</script>
+<html>

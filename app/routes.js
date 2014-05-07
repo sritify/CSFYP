@@ -200,6 +200,13 @@ module.exports = function(app, passport) {
 		});
 	});
 	
+	app.get('/closeroom', isLoggedIn, function(req, res) {
+		if (req.isAuthenticated())
+			res.redirect('/home');
+		else
+			res.render('index.ejs'); // load the index.ejs file
+	}
+	
 	app.post('/closeroom', isLoggedIn, function(req, res) {
 		console.log(req.body);
 	    var id = req.body.id;
