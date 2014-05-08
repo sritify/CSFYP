@@ -91,6 +91,8 @@
 			client.canvas2.calcOffset();
 		});
 		
+		
+		setTimeout(function(){scrollObj.resize();}, 210);
 /*		scrollObj.locked=true;
 		if(!window.mobilecheck()){
 			scrollObj.locked=false;
@@ -114,6 +116,7 @@
 	}); 
 	$( window ).resize(function() {
 		//console.log("resize");
+		scrollObj.resize();
 		client.canvas2.calcOffset();
 	});
   </script>
@@ -135,7 +138,7 @@
 
 <!-- TOOLs -->			
 			<li id='tool' class='holdable control_menu'><a>
-				<button id='current_tool' onclick="">
+				<button id='current_tool' onclick="setFunc('draw')">
 					<img id='toolsimg' src="/image/pencil.png" alt="Tools" title="Tools"  >
 				</button></a>	
 			</li>
@@ -308,12 +311,14 @@
 							$("#toggle_menu").html("Hide Menu");
 							$(".content").animate({height:"85%"},200);
 							$(".sidebar2").animate({height:"85%"},200);
+							setTimeout(function(){scrollObj.resize();}, 210);
 						}
 						else{
 							$("#control").slideUp(200);
 							$("#toggle_menu").html("Show Menu");
 							$(".content").animate({height:"95%"},200);
 							$(".sidebar2").animate({height:"95%"},200);
+							setTimeout(function(){scrollObj.resize();}, 210);
 						}
 					}
 					function toggle_chat(){
@@ -321,10 +326,12 @@
 							$(".sidebar2").show('slide', {direction: "right"},200);
 							$("#toggle_chat").html("Hide Chat");
 							$(".content").animate({width:"75%"},200);
+							setTimeout(function(){scrollObj.resize();}, 210);
 						} else{
 							$(".sidebar2").hide('slide', {direction: "right"},200);
 							$("#toggle_chat").html("Display Chat");	
 							$(".content").animate({width:"100%"},200);
+							setTimeout(function(){scrollObj.resize();}, 210);
 						}
 					}
 				</script>
@@ -1494,7 +1501,6 @@
 	// Zoom In
 	function zoomIn() {
 	   // limiting the canvas zoom scale 
-		
 		if(client.canvasScale < 2.9)
 		 {
 			disable();
@@ -1527,6 +1533,7 @@
 				
 			client.canvas2.renderAll();
 			client.canvas2.calcOffset();
+			scrollObj.resize();
 		}
 	}
 
@@ -1565,6 +1572,7 @@
 			
 			client.canvas2.renderAll();  
 			client.canvas2.calcOffset();
+			scrollObj.resize();
 		}    
 	}
 
@@ -1599,7 +1607,7 @@
 			
 		client.canvas2.renderAll();
 		client.canvas2.calcOffset();
-		
+		scrollObj.resize();
 		client.canvasScale = 1;
 	}
 
